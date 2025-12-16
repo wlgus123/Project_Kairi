@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -28,8 +29,6 @@ public class GrapplingHook : MonoBehaviour
         isAttach = false;
         hook.gameObject.SetActive(false);
     }
-
-    // Update is called once per frame
     void Update()
     {
         line.SetPosition(0, transform.position);
@@ -101,18 +100,22 @@ public class GrapplingHook : MonoBehaviour
 
         }
     }
+
     void LateUpdate()
     {
         if (!isEnemyAttach) return;
 
+        SpriteRenderer playerSprite = GetComponent<SpriteRenderer>();
         for (int i = 0; i < enemies.Count; i++)
         {
             if (enemies[i] == null) continue;
 
-            enemies[i].position = transform.position + enemyFollowOffset;
+            Vector3 offset = enemyFollowOffset;
+            offset.x = playerSprite.flipX ? -Mathf.Abs(enemyFollowOffset.x) : Mathf.Abs(enemyFollowOffset.x);
+
+            enemies[i].localPosition = offset; // 부모 transform 기준 localPosition
         }
     }
-
 
     public void AttachEnemy(Transform enemy)
     {
@@ -120,35 +123,69 @@ public class GrapplingHook : MonoBehaviour
 
         enemies.Add(enemy);
 
-        // 충돌 끄기
-        Collider2D col = enemy.GetComponent<Collider2D>();
-        if (col != null)
-            col.enabled = false;
+        Collider2D enemyCol = enemy.GetComponent<Collider2D>();
+        Collider2D playerCol = GetComponent<Collider2D>();
+
+        if (enemyCol != null && playerCol != null)
+            Physics2D.IgnoreCollision(enemyCol, playerCol, true);
+
+        // Rigidbody가 있으면 Kinematic으로
+        Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
+        if (rb != null)
+            rb.bodyType = RigidbodyType2D.Kinematic;
+
+        // 플레이어 자식으로
+        enemy.SetParent(transform);
+
+        // 플레이어 SpriteRenderer 가져오기
+        SpriteRenderer playerSprite = GetComponent<SpriteRenderer>();
+
+        // enemyFollowOffset 기준으로 x를 왼쪽/오른쪽 맞춤
+        Vector3 offset = enemyFollowOffset;
+        offset.x = playerSprite.flipX ? -Mathf.Abs(enemyFollowOffset.x) : Mathf.Abs(enemyFollowOffset.x);
+
+        enemy.localPosition = offset;
+
+
+        // 훅 & 줄 숨기기
+        hook.gameObject.SetActive(false);
+        line.enabled = false;
 
         isEnemyAttach = true;
         isAttach = false;
+        isHookActive = false;
+        isLineMax = false;
     }
+
     public void ThrowEnemy(Transform enemy, Vector2 throwDir, float throwForce)
     {
         if (!enemies.Contains(enemy)) return;
 
         enemies.Remove(enemy);
 
-        // 충돌 다시 켜기
-        Collider2D col = enemy.GetComponent<Collider2D>();
-        if (col != null)
-            col.enabled = true;
+        // 부모 해제
+        enemy.SetParent(null);
 
+        Collider2D enemyCol = enemy.GetComponent<Collider2D>();
+        Collider2D playerCol = GetComponent<Collider2D>();
+
+        // 1초간 충돌 무시
+        if (enemyCol != null && playerCol != null)
+            StartCoroutine(IgnoreCollisionTemporarily(enemyCol, playerCol, 0.3f));
+
+        // Rigidbody 처리
         Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
+            rb.bodyType = RigidbodyType2D.Dynamic;
             rb.linearVelocity = Vector2.zero;
             rb.AddForce(throwDir.normalized * throwForce, ForceMode2D.Impulse);
         }
 
-        // 더 이상 붙은 Enemy가 없으면 상태 해제
         if (enemies.Count == 0)
             isEnemyAttach = false;
+
+        line.enabled = true;
 
         // 훅 상태 초기화
         isHookActive = false;
@@ -156,5 +193,18 @@ public class GrapplingHook : MonoBehaviour
         hook.GetComponent<Hooking>().joint2D.enabled = false;
         hook.gameObject.SetActive(false);
     }
+
+    // 충돌 무시 코루틴
+    IEnumerator IgnoreCollisionTemporarily(Collider2D enemyCol, Collider2D playerCol, float duration)
+    {
+        Physics2D.IgnoreCollision(enemyCol, playerCol, true);
+
+        yield return new WaitForSeconds(duration);
+
+        // 오브젝트가 아직 살아있을 때만 복구
+        if (enemyCol != null && playerCol != null)
+            Physics2D.IgnoreCollision(enemyCol, playerCol, false);
+    }
+
 
 }
