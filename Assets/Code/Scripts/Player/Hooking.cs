@@ -5,7 +5,8 @@ public class Hooking : MonoBehaviour
     GrapplingHook grappling;
     public DistanceJoint2D joint2D;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private Transform hookedEnemy;
+
     void Start()
     {
         grappling = GameObject.Find("Player").GetComponent<GrapplingHook>();
@@ -18,6 +19,10 @@ public class Hooking : MonoBehaviour
         {
             joint2D.enabled = true;
             grappling.isAttach = true;
+        }
+        if (collision.CompareTag("Enemy"))
+        {
+            grappling.AttachEnemy(collision.transform);
         }
     }
 }

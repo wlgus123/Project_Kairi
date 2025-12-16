@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +11,10 @@ public class GrapplingHook : MonoBehaviour
     public bool isHookActive;
     public bool isLineMax;
     public bool isAttach;
+    public bool isEnemyAttach;
+
+    public Vector3 enemyFollowOffset = Vector3.zero;
+    private List<Transform> enemies = new List<Transform>();
 
     void Start()
     {
@@ -42,7 +47,7 @@ public class GrapplingHook : MonoBehaviour
         }
 
         // 훅이 발사된 상태이고, 아직 최대 사거리에 도달하지 않았을 때
-        if (isHookActive && !isLineMax && !isAttach)
+        if (isHookActive && !isLineMax && !isAttach && !isEnemyAttach)
         {
             // 마우스 방향으로 훅을 전진시킴
             hook.Translate(mousedir.normalized * Time.deltaTime * GameManager.Instance.playerStatsRuntime.hookSpeed);
@@ -55,7 +60,7 @@ public class GrapplingHook : MonoBehaviour
         }
 
         // 훅이 최대 사거리에 도달한 이후
-        else if (isHookActive && isLineMax && !isAttach)
+        else if (isHookActive && isLineMax && !isAttach && !isEnemyAttach)
         {
             // 훅을 플레이어 위치로 부드럽게 되돌림
             hook.position = Vector2.MoveTowards(hook.position, transform.position, Time.deltaTime * GameManager.Instance.playerStatsRuntime.hookSpeed);
@@ -82,5 +87,74 @@ public class GrapplingHook : MonoBehaviour
                 hook.gameObject.SetActive(false);
             } 
         }
+
+        else if (isEnemyAttach)
+        {
+            if (Mouse.current.leftButton.wasPressedThisFrame && enemies.Count > 0)
+            {
+                Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+
+                Vector2 dir = mouseWorld - (Vector2)transform.position;
+
+                ThrowEnemy(enemies[0], dir, GameManager.Instance.playerStatsRuntime.hookEnemyThrowForce);
+            }
+
+        }
     }
+    void LateUpdate()
+    {
+        if (!isEnemyAttach) return;
+
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (enemies[i] == null) continue;
+
+            enemies[i].position = transform.position + enemyFollowOffset;
+        }
+    }
+
+
+    public void AttachEnemy(Transform enemy)
+    {
+        if (enemies.Contains(enemy)) return;
+
+        enemies.Add(enemy);
+
+        // 충돌 끄기
+        Collider2D col = enemy.GetComponent<Collider2D>();
+        if (col != null)
+            col.enabled = false;
+
+        isEnemyAttach = true;
+        isAttach = false;
+    }
+    public void ThrowEnemy(Transform enemy, Vector2 throwDir, float throwForce)
+    {
+        if (!enemies.Contains(enemy)) return;
+
+        enemies.Remove(enemy);
+
+        // 충돌 다시 켜기
+        Collider2D col = enemy.GetComponent<Collider2D>();
+        if (col != null)
+            col.enabled = true;
+
+        Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.AddForce(throwDir.normalized * throwForce, ForceMode2D.Impulse);
+        }
+
+        // 더 이상 붙은 Enemy가 없으면 상태 해제
+        if (enemies.Count == 0)
+            isEnemyAttach = false;
+
+        // 훅 상태 초기화
+        isHookActive = false;
+        isLineMax = false;
+        hook.GetComponent<Hooking>().joint2D.enabled = false;
+        hook.gameObject.SetActive(false);
+    }
+
 }
