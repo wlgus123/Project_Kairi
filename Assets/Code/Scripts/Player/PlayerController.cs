@@ -11,6 +11,10 @@ public class PlayerController : MonoBehaviour
     SpriteRenderer sprite;
     GrapplingHook grappling;
 
+    // 대화창 매니저
+    [Header("대화 시스템 매니저")]
+    public DialogManager dialogMng;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
@@ -63,5 +67,11 @@ public class PlayerController : MonoBehaviour
     void OnMove(InputValue value)
     {
         inputVec = value.Get<Vector2>();
+    }
+
+    // E키 클릭 시 상호작용 발생 (대화창)
+    void OnInteract(InputValue value)
+    {
+        dialogMng.Action(this.gameObject);
     }
 }

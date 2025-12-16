@@ -7,6 +7,8 @@ TagManager:
   - Ground
   - Ceiling
   - Enemy
+  - Object
+  - NPC
   layers:
   - Default
   - TransparentFX
