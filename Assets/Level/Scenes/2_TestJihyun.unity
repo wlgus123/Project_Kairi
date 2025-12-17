@@ -416,7 +416,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &325696932
 RectTransform:
   m_ObjectHideFlags: 0
@@ -491,6 +491,7 @@ GameObject:
   - component: {fileID: 348979918}
   - component: {fileID: 348979917}
   - component: {fileID: 348979916}
+  - component: {fileID: 348979924}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -531,7 +532,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   jumpForce: 0
   inputVec: {x: 0, y: 0}
-  dialogMng: {fileID: 480632158}
 --- !u!61 &348979918
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -731,6 +731,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &348979924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 348979915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16d334fe44497ba40ae018936610b47d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
+  dialogMng: {fileID: 480632158}
 --- !u!1 &358275268
 GameObject:
   m_ObjectHideFlags: 0

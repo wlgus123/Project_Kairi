@@ -10,10 +10,8 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rigid;
     SpriteRenderer sprite;
     GrapplingHook grappling;
-
-    // 대화창 매니저
-    [Header("대화 시스템 매니저")]
-    public DialogManager dialogMng;
+    
+    PlayerInteraction interaction;  // 상호작용
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
@@ -21,12 +19,13 @@ public class PlayerController : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         grappling = GetComponent<GrapplingHook>();
+        interaction = GetComponent<PlayerInteraction>();
     }
 
     void FixedUpdate()
     {
         // 대화중일 경우 액션 X
-        if (dialogMng.isAction) return;
+        if (interaction && interaction.GetIsAction()) return;
 
         // x 이동
         float speed = GameManager.Instance.playerStatsRuntime.speed;
@@ -70,11 +69,5 @@ public class PlayerController : MonoBehaviour
     void OnMove(InputValue value)
     {
         inputVec = value.Get<Vector2>();
-    }
-
-    // E키 클릭 시 상호작용 발생 (대화창)
-    void OnInteract(InputValue value)
-    {
-        dialogMng.Action(this.gameObject);
     }
 }
