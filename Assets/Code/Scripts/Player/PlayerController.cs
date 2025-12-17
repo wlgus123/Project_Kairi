@@ -3,8 +3,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    bool isGrounded;
-    bool isFalling;     // 훅을 해제하고 떨어지는 중인지 체크
+    public bool isGrounded;
 
     public Vector2 inputVec;
     Rigidbody2D rigid;
@@ -21,7 +20,10 @@ public class PlayerController : MonoBehaviour
         grappling = GetComponent<GrapplingHook>();
         interaction = GetComponent<PlayerInteraction>();
     }
-
+    void Start()
+    {
+        isGrounded = true;
+    }
     void FixedUpdate()
     {
         // 대화중일 경우 액션 X

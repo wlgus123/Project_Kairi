@@ -35,8 +35,9 @@ public class GrapplingHook : MonoBehaviour
         line.SetPosition(0, transform.position);
         line.SetPosition(1, hook.position);
 
-        if (Mouse.current.leftButton.wasPressedThisFrame && !isHookActive)
+        if (Mouse.current.leftButton.wasPressedThisFrame && !isHookActive && !isAttach && !isEnemyAttach)
         {
+            GameManager.Instance.cameraShake.ShakeForSeconds(0.1f);
             hook.position = transform.position;
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
             mouseWorldPos.z = 0f;

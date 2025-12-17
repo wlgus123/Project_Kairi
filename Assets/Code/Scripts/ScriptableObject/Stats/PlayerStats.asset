@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerStats
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   speed: 5
-  jumpForce: 7
+  jumpForce: 9
   attack: 150
   maxHP: 800
   hookSpeed: 100

@@ -21,7 +21,7 @@ public class Hooking : MonoBehaviour
 
             // 플레이어가 갈고리를 건 위치가 Joint DIstance의 Distance
             float dist = Vector2.Distance(grappling.transform.position, transform.position);
-            joint2D.distance = dist;
+            joint2D.distance = dist - 0.3f;
 
             grappling.isAttach = true;
             grappling.isHookActive = false;
