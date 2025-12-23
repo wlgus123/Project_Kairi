@@ -95,8 +95,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         // 플레이어 체력 줄어들기
         GameManager.Instance.playerStatsRuntime.currentHP -= attack;
-
-        Debug.Log("[플레이어 데미지] 플레이어 현재 체력: " + GameManager.Instance.playerStatsRuntime.currentHP);
     }
 
 }

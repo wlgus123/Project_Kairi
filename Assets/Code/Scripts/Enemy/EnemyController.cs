@@ -30,6 +30,7 @@ public class EnemyController : MonoBehaviour, IDamageable
 	private void Start()
 	{
 		currStat = new EnemyStatsRuntime(GameManager.Instance.enemyStats);  // Ω∫≈» √ ±‚»≠
+		transform.gameObject.tag = enemyStr;
 	}
 
 	private void Update()
@@ -68,7 +69,7 @@ public class EnemyController : MonoBehaviour, IDamageable
 			//state = EnemyState.Thrown;
 			transform.gameObject.tag = throwingEnemyStr;
 		}
-		else if(other.gameObject.CompareTag("Ground"))
+		else if(other.gameObject.CompareTag("Ceiling"))
 		{
 			//state = EnemyState.None;
 			transform.gameObject.tag = enemyStr;

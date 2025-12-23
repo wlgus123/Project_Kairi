@@ -27,7 +27,7 @@ public class Hooking : MonoBehaviour
             grappling.isHookActive = false;
             grappling.isLineMax = false;
         }
-        if (collision.CompareTag("Enemy"))
+        if (collision.CompareTag("Enemy") || collision.CompareTag("ThrowingEnemy"))
         {
             grappling.AttachEnemy(collision.transform);
         }
