@@ -8,8 +8,14 @@ public class CursorPathMarking : MonoBehaviour
 	[Header("라인렌더러")]
 	public LineRendererAtoB visualizerLine;
 
-	// 표시선 길이
-	float distance = 10f;
+	GrapplingHook hook;	// 그래플링 훅 정보
+	float distance = 0f;    // 표시선 길이
+
+	private void Awake()
+	{
+		hook = GetComponent<GrapplingHook>();
+		Debug.Log(hook);
+	}
 
 	private void Start()
 	{
@@ -35,18 +41,36 @@ public class CursorPathMarking : MonoBehaviour
 		// 자기 위치에서 dir 방향으로 광선 발사
 		RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);
 
-		// 광선에 부딪히는 오브젝트가 있으면 선 활성화
-		if (hit.collider != null)
+		// 훅 사용 중일 경우 선 비활성화
+		if(hook.isAttach)
 		{
+			visualizerLine.Stop();
+		}
+
+		// 광선에 부딪히는 오브젝트가 있으면 선 활성화
+		if (hit)
+		{
+			// 부딪힌 요소가 NPC일 경우 선 비활성화
+			if(hit.collider.tag == "NPC")
+			{
+				visualizerLine.Stop();
+				return;
+			}
+
+			// 부딪힌 요소에 따라 선 색상 변경
+			if (hit.collider.tag == "Object")
+			{
+				visualizerLine.SetLineColor(new Color(0.49f, 0.85f, 0.45f));
+			}
+			else
+			{
+				visualizerLine.SetLineColor(new Color(0.18f, 0.76f, 1f));
+			}
+
 			visualizerLine.Play(transform.position, hit.point);
 		}
 		else
 		{
-			// 안 맞아도 방향 확인용으로 선 그리기
-			//visualizerLine.Play(
-			//	transform.position,
-			//	transform.position + (Vector3)(dir * distance)
-			//);
 			visualizerLine.Stop();
 		}
 	}
