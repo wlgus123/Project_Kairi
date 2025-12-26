@@ -5,6 +5,7 @@ using static UnityEngine.LowLevelPhysics2D.PhysicsShape;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     public bool isGrounded;
+    public bool hasCollided = false;
 
     public Vector2 inputVec;
     Rigidbody2D rigid;
@@ -85,12 +86,15 @@ public class PlayerController : MonoBehaviour, IDamageable
 			}
 		}
 
-		//if (isGrounded && rigid.linearVelocityY < 0f)
-		//{
-		//	rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
-		//}
+        // 충돌 체크
+        hasCollided = true;
 
-	}
+        //if (isGrounded && rigid.linearVelocityY < 0f)
+        //{
+        //	rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
+        //}
+
+    }
 
 
 	void OnMove(InputValue value)
