@@ -1292,6 +1292,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   isGrounded: 0
+  hasCollided: 0
   inputVec: {x: 0, y: 0}
 --- !u!114 &156809792
 MonoBehaviour:
@@ -1362,12 +1363,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96080ce099ea71e4088789d1539497b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hook
+  globalVolume: {fileID: 0}
   line: {fileID: 1762199177}
   hook: {fileID: 1914685234}
   isHookActive: 0
   isLineMax: 0
   isAttach: 0
   isEnemyAttach: 0
+  isSlowing: 0
   slowFactor: 0.5
   slowLength: 2
   enemyFollowOffset: {x: 1, y: 0, z: 0}
@@ -21185,6 +21188,7 @@ MonoBehaviour:
     hookDistance: 0
     hookSwingForce: 0
     hookEnemyThrowForce: 0
+    maxSwingSpeed: 0
   enemyStatsRuntime:
     attack: 0
     maxHP: 0
@@ -42386,6 +42390,7 @@ MonoBehaviour:
   startPos: {x: 14.95, y: 8.2, z: 0}
   maxTime: 2
   curTime: 0
+  aiming: {fileID: 0}
 --- !u!50 &1298111046
 Rigidbody2D:
   serializedVersion: 5
@@ -49688,6 +49693,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8628492ad07fa84996670a3e3d52c6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hooking
+  minDistanceLimit: 0
+  minClampDistance: 0
   joint2D: {fileID: 1914685230}
 --- !u!1 &1918118350
 GameObject:

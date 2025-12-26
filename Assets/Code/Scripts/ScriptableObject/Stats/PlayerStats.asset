@@ -20,3 +20,4 @@ MonoBehaviour:
   hookDistance: 10
   hookSwingForce: 30
   hookEnemyThrowForce: 50
+  maxSwingSpeed: 50

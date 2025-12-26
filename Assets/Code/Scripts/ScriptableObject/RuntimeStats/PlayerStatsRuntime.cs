@@ -24,6 +24,9 @@ public class PlayerStatsRuntime
     [Header("갈고리 몹 던지는 힘")]
     public float hookEnemyThrowForce;
 
+    [Header("갈고리 중 최대 속도")]
+    public float maxSwingSpeed;
+
     // 생성자
     public PlayerStatsRuntime(PlayerStats baseStats)
     {
@@ -37,5 +40,7 @@ public class PlayerStatsRuntime
         hookDistance = baseStats.hookDistance;
         hookSwingForce = baseStats.hookSwingForce;
         hookEnemyThrowForce = baseStats.hookEnemyThrowForce;
+
+        maxSwingSpeed = baseStats.maxSwingSpeed;
     }
 }

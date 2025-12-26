@@ -33,13 +33,38 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         if (grappling.isAttach) // 훅 매달림
         {
-            float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
-            rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
+            Vector2 hookPos = grappling.hook.position;
+            Vector2 playerPos = transform.position;
+
+            // 훅 -> 플레이어 방향벡터
+            Vector2 dir = (playerPos - hookPos).normalized;
+
+            float inputX = inputVec.x;
+
+            if (inputX > 0.1f)  // 오른쪽 방향키 = 항상 반시계 방향
+            {
+                Vector2 counterClockwise = new Vector2(-dir.y, dir.x);
+                rigid.AddForce(counterClockwise * GameManager.Instance.playerStatsRuntime.hookSwingForce);
+            }
+            else if (inputX < -0.1f) // 왼쪽 방향키 = 항상 시계 방향
+            {
+                Vector2 clockwise = new Vector2(dir.y, -dir.x);
+                rigid.AddForce(clockwise * GameManager.Instance.playerStatsRuntime.hookSwingForce);
+            }
+
+            // 최대 속도 제한
+            if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
+            {
+                rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
+            }
+
         }
         else // 일반 이동
         {
             float x = inputVec.x * speed * Time.deltaTime; // translate
             transform.Translate(x, 0, 0);
+            Debug.Log("Grounded : " + isGrounded);
+
         }
 
         // 방향 플립
@@ -51,9 +76,10 @@ public class PlayerController : MonoBehaviour, IDamageable
 		// 플레이어가 그래플링 훅 사용 중일 때
 		if (grappling.isAttach)
 			isGrounded = false;     // 바닥에 있지 X
-	}
 
-	void OnJump()
+    }
+
+    void OnJump()
 	{
 		// 그래플링 사용 중 점프 시
 		if (grappling.isAttach) return;
@@ -76,7 +102,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 				contact.point.y < transform.position.y)
 			{
 				isGrounded = true;
-				rigid.linearVelocity = new Vector2(0f, rigid.linearVelocityY);
+                rigid.linearVelocity = new Vector2(0f, rigid.linearVelocityY);
 				break;
 			}
 		}
