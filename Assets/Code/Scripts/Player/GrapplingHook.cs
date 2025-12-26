@@ -254,6 +254,9 @@ public class GrapplingHook : MonoBehaviour
         // 플레이어 자식으로
         enemy.SetParent(transform);
 
+        if (enemyCol != null)
+            enemyCol.enabled = false;
+
         // 플레이어 SpriteRenderer 가져오기
         SpriteRenderer playerSprite = GetComponent<SpriteRenderer>();
 
@@ -275,16 +278,20 @@ public class GrapplingHook : MonoBehaviour
 
     public void ThrowEnemy(Transform enemy, Vector2 throwDir, float throwForce)
     {
+        Collider2D enemyCol = enemy.GetComponent<Collider2D>();
+        Collider2D playerCol = GetComponent<Collider2D>();
+
         if (!enemies.Contains(enemy)) return;
 
         GameManager.Instance.audioManager.HookThrowEnemySound(1f); // 적 던지는 효과음
+
+        if (enemyCol != null)
+            enemyCol.enabled = true;
+
         enemies.Remove(enemy);
 
         // 부모 해제
         enemy.SetParent(null);
-
-        Collider2D enemyCol = enemy.GetComponent<Collider2D>();
-        Collider2D playerCol = GetComponent<Collider2D>();
 
         // Rigidbody 처리
         Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
