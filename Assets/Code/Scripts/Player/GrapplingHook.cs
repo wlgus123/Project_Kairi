@@ -184,7 +184,7 @@ public class GrapplingHook : MonoBehaviour
 			}
 
 			// 쉬프트 줄 당기기
-			if (Keyboard.current.shiftKey.isPressed)
+			if (Keyboard.current.spaceKey.isPressed)
 			{
 				if (hookJoint != null && hookJoint.enabled)
 				{
@@ -198,7 +198,7 @@ public class GrapplingHook : MonoBehaviour
 				}
 			}
 
-			if (Keyboard.current.shiftKey.wasReleasedThisFrame)
+			if (Keyboard.current.spaceKey.wasReleasedThisFrame)
 			{
 				GameManager.Instance.audioManager.StopSFX();
 				isPlayedDraftSound = false;
