@@ -1462,7 +1462,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SwingGaugeController
   swingGauge: {fileID: 1286075245}
   hook: {fileID: 1914685234}
-  maxTurns: 3
+  maxTurns: 1
   decreaseSpeed: 120
   increaseMultiplier: 1
   turnMinDelta: 0.3

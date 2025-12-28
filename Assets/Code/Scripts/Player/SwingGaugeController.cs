@@ -9,8 +9,8 @@ public class SwingGaugeController : MonoBehaviour
     private GrapplingHook grappling;        // GrapplingHook 스크립트 참조
     public Transform hook;                  // 갈고리의 위치(회전 중심)
 
-    public int maxTurns = 3;                // 저장가능한 최대 회전 수(에너지 제한)
-    public float decreaseSpeed = 200f;      // 회전 중이지 않을 때 게이지 감소 속도
+    public int maxTurns = 1;                // 저장가능한 최대 회전 수(에너지 제한)
+    public float decreaseSpeed = 400f;      // 회전 중이지 않을 때 게이지 감소 속도
     public float increaseMultiplier = 1.0f; // 회전할 때 회전량 증가 배율
     public float turnMinDelta = 0.3f;       // 회전으로 인정할 최소 각도 변화
 
@@ -22,9 +22,12 @@ public class SwingGaugeController : MonoBehaviour
 
     private int storedDirection = 0;        // 저장된 회전 방향(1=시계, -1=반시계, 0=없음)
 
+    PlayerController player;
+
     void Awake()
     {
         grappling = GetComponent<GrapplingHook>();
+        player = GetComponent<PlayerController>();
         maxAngle = maxTurns * 360f;
     }
 
@@ -33,12 +36,14 @@ public class SwingGaugeController : MonoBehaviour
         // 갈고리에 붙어 있을 때만 게이지 처리
         if (grappling.isAttach)
         {
+            bool noInput = player.inputVec == Vector2.zero;
+
             swingGauge.gameObject.SetActive(true);  // 게이지 UI 활성화
 
             Vector2 hookPos = hook.position;        // 갈고리(회전 중심) 좌표
             Vector2 playerPos = transform.position; // 플레이어 좌표
 
-            Vector2 dir = (playerPos - hookPos).normalized; // 갈고리 → 플레이어 방향 벡터
+            Vector2 dir = (playerPos - hookPos).normalized; // 갈고리 -> 플레이어 방향 벡터
 
             float angleNow = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // 현재 각도(0~360°)
 
@@ -64,13 +69,20 @@ public class SwingGaugeController : MonoBehaviour
 
                 if (deltaDir == storedDirection)
                 {
-                    // 같은 방향으로 계속 회전 중 → 누적 회전량 증가
-                    accumulatedAngle += Mathf.Abs(delta) * increaseMultiplier;
+                    if (noInput)    // 입력 없을 때
+                    {
+                        accumulatedAngle += decreaseSpeed * Time.deltaTime * 0.05f;
+                    }
+                    else
+                    {
+                        // 같은 방향으로 돌면 -> 게이지 증가
+                        accumulatedAngle += Mathf.Abs(delta) * increaseMultiplier;
+                    }
                 }
                 else
                 {
-                    // 반대 방향으로 돌면 → 누적 회전량 감소
-                    accumulatedAngle -= Mathf.Abs(delta) * increaseMultiplier;
+                    // 반대 방향으로 돌면 -> 게이지 감소
+                    accumulatedAngle -= Mathf.Abs(delta) * increaseMultiplier * 1.5f;
 
                     // 감소하다가 0 이하가 되면 방향 초기화
                     if (accumulatedAngle <= 0f)
@@ -82,7 +94,7 @@ public class SwingGaugeController : MonoBehaviour
             }
             else
             {
-                // 회전량 거의 없음 → 자연 감소
+                // 회전량 거의 없음 -> 자연 감소
                 accumulatedAngle -= decreaseSpeed * Time.deltaTime;
 
                 // 감소하다 0 이하로 떨어지면 초기화
