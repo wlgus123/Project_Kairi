@@ -1414,6 +1414,7 @@ MonoBehaviour:
   slowFactor: 0.5
   slowLength: 2
   swingBoostController: {fileID: 0}
+  followOffset: {x: 1, y: 0, z: 0}
 --- !u!114 &156809795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18553,6 +18554,55 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
+--- !u!1 &582857791
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 582857792}
+  - component: {fileID: 582857793}
+  m_Layer: 0
+  m_Name: Rope
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &582857792
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582857791}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1914685234}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &582857793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582857791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2a16e3300e97eb439cb841d9b5a9465, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RopeCreator
+  segmentsCount: 2
+  pointA: {fileID: 814405870}
+  pointB: {fileID: 1030478993}
+  hingePrefeb: {fileID: 0}
+  segments: []
 --- !u!1 &604865949
 GameObject:
   m_ObjectHideFlags: 0
@@ -19363,6 +19413,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eda752d879f4f594ea16a2519c84b560, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovingEnemy
+  speed: 0
 --- !u!50 &733997520
 Rigidbody2D:
   serializedVersion: 5
@@ -20028,6 +20079,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2142161657}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &814405869
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 814405870}
+  m_Layer: 0
+  m_Name: LinePointA
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &814405870
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 814405869}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1914685234}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &815410397
 GameObject:
@@ -21376,6 +21458,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   state: 0
+--- !u!1 &1030478992
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1030478993}
+  m_Layer: 0
+  m_Name: LinePointB
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1030478993
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1030478992}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1914685234}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1070786559
 GameObject:
   m_ObjectHideFlags: 0
@@ -21424,7 +21537,7 @@ GameObject:
   - component: {fileID: 1089452494}
   m_Layer: 3
   m_Name: TutorialMap
-  m_TagString: Ceiling
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -42301,6 +42414,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae4652db5bd5ae34b83b704d7d6825a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAttack
+  distance: 0
+  atkDistince: 0
+  isLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  speed: 0
+  bullet: {fileID: 0}
+  bulletPos: {x: 0, y: 0, z: 0}
+  coolTime: 0
+  startPos: {x: 0, y: 0, z: 0}
+  maxTime: 0
+  curTime: 0
+  aiming: {fileID: 0}
 --- !u!50 &1298111046
 Rigidbody2D:
   serializedVersion: 5
@@ -49326,7 +49452,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!232 &1914685230
 DistanceJoint2D:
   m_ObjectHideFlags: 0
@@ -49483,6 +49609,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1762199176}
+  - {fileID: 582857792}
+  - {fileID: 814405870}
+  - {fileID: 1030478993}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1914685235

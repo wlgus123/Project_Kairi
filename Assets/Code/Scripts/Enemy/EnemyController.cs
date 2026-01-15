@@ -18,13 +18,14 @@ public class EnemyController : MonoBehaviour
 		damageable = GetComponent<Enemy>();
 	}
 
-	void Start()
+	private void Update()
 	{
+		
 	}
 
-	// 던져지는 몬스터 또는 오브젝트와 닿았을 경우
 	void OnCollisionEnter2D(Collision2D other)
 	{
+		// 적과 닿았을 경우
 		if (other.gameObject.CompareTag(tagName.enemy) || other.gameObject.CompareTag(tagName.throwingEnemy))
 		{
 			if (other.gameObject.TryGetComponent<Enemy>(out var target))
@@ -32,6 +33,11 @@ public class EnemyController : MonoBehaviour
 				target.TakeDamage(1);       // 닿은 적에게 데미지 주기
 				damageable.TakeDamage(1);   // 자기 자신도 데미지 받기
 			}
+		}
+		// 오브젝트와 닿았을 경우
+		else if(other.gameObject.CompareTag(tagName.obj))
+		{
+
 		}
 	}
 }

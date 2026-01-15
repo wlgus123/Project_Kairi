@@ -17,7 +17,7 @@ public class Enemy : MonoBehaviour, IDamageable
 		// 공격력 만큼 체력 깎기
 		currStat.currentHP -= attack;
 
-		// TODO: 체력이 0 이하일 경우 할당 해제
+		// TODO: 체력이 0 이하일 경우 할당 해제 (풀 매니저 사용하기)
 		if (currStat.currentHP <= 0)
 		{
 			gameObject.SetActive(false);

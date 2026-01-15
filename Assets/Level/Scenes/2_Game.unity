@@ -1357,13 +1357,10 @@ MonoBehaviour:
   isHookActive: 0
   isLineMax: 0
   isAttach: 0
-  isEnemyAttach: 0
-  isObjAttach: 0
+  isAttachElement: 0
   isSlowing: 0
   slowFactor: 0.5
   slowLength: 2
-  enemyFollowOffset: {x: 1, y: 0, z: 0}
-  objFollowOffset: {x: 0, y: 0, z: 0}
   swingBoostController: {fileID: 0}
 --- !u!114 &156809795
 MonoBehaviour:
@@ -1586,7 +1583,7 @@ GameObject:
   - component: {fileID: 199378713}
   m_Layer: 3
   m_Name: TestMap
-  m_TagString: Ceiling
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -21970,7 +21967,7 @@ GameObject:
   - component: {fileID: 1089452494}
   m_Layer: 3
   m_Name: TutorialMap
-  m_TagString: Ceiling
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -42970,6 +42967,9 @@ GameObject:
   - component: {fileID: 1298111046}
   - component: {fileID: 1298111045}
   - component: {fileID: 1298111049}
+  - component: {fileID: 1298111052}
+  - component: {fileID: 1298111051}
+  - component: {fileID: 1298111050}
   m_Layer: 0
   m_Name: Enemy2 (9)
   m_TagString: Enemy
@@ -43161,6 +43161,61 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da319fc7f7b932741989639c6a8af631, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+--- !u!114 &1298111050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298111043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e522e3ff07312d04aa9b52af72e12171, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyBullet
+  speed: 1
+  distance: 2
+  isLayer:
+    serializedVersion: 2
+    m_Bits: 0
+--- !u!114 &1298111051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298111043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda752d879f4f594ea16a2519c84b560, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovingEnemy
+  speed: 5
+--- !u!114 &1298111052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298111043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae4652db5bd5ae34b83b704d7d6825a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAttack
+  distance: 0
+  atkDistince: 0
+  isLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  speed: 0
+  bullet: {fileID: 0}
+  bulletPos: {x: 0, y: 0, z: 0}
+  coolTime: 0
+  startPos: {x: 0, y: 0, z: 0}
+  maxTime: 0
+  curTime: 0
+  aiming: {fileID: 0}
 --- !u!1 &1331684992
 GameObject:
   m_ObjectHideFlags: 0

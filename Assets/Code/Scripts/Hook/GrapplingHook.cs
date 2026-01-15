@@ -19,18 +19,18 @@ public class GrapplingHook : MonoBehaviour
 	private Vector2 mousedir;
 
 	public bool isHookActive;
-	public bool isLineMax;			// 그래플링 훅 길이가 최대인지
-	public bool isAttach;			// 그래플링 훅 사용 중인지 여부
-	public bool isAttachElement;	// 그래플링 훅으로 무언가를 잡았는지 여부
-	public bool isSlowing;			// 슬로우모션 여부
+	public bool isLineMax;          // 그래플링 훅 길이가 최대인지
+	public bool isAttach;           // 그래플링 훅 사용 중인지 여부
+	public bool isAttachElement;    // 그래플링 훅으로 무언가를 잡았는지 여부
+	public bool isSlowing;          // 슬로우모션 여부
 	private bool hasShakedOnAttach = false;
 	private bool hasPlayedAttachSound = false;
 	private bool isPlayedDraftSound = false;
 	private bool hasPlayedShootSound = false;
 	private bool hasAppliedHookForce = false;
 
-    // 슬로우 효과 변수
-    public float slowFactor;    // 슬로우 비율
+	// 슬로우 효과 변수
+	public float slowFactor;    // 슬로우 비율
 	public float slowLength;    // 원래 속도로 복귀하는 데 걸리는 시간
 	private Coroutine slowCoroutine;    // 슬로우 효과 코루틴
 
@@ -42,11 +42,13 @@ public class GrapplingHook : MonoBehaviour
 	PlayerController player;    // 플레이어
 
 	public SwingBoostController swingBoostController;
-	
+
 	ColorAdjustments colorAdjustments;
 
 	List<Transform> hookingList = new List<Transform>();    // 그래플링 훅으로 잡은 요소 리스트
-	Vector3 followOffset = Vector3.zero;
+
+	[Header("오프셋 (잡힌 오브젝트 이동 보정값)")]
+	public Vector3 followOffset = Vector3.zero;
 
 	private void Awake()
 	{
@@ -140,7 +142,7 @@ public class GrapplingHook : MonoBehaviour
 			}
 		}
 
-        else if (isAttach)
+		else if (isAttach)
 		{
 			if (!hasShakedOnAttach)
 			{
@@ -248,13 +250,13 @@ public class GrapplingHook : MonoBehaviour
 	{
 		if (hookingList.Contains(element) || isAttachElement) return;
 
-		hookingList.Add(element);	// 리스트에 추가하기
+		hookingList.Add(element);   // 리스트에 추가하기
 
 		Collider2D elementCol = element.GetComponent<Collider2D>();
 		Collider2D playerCol = GetComponent<Collider2D>();
 
 		// 플레이어가 자기 자신을 잡았을 때 -> 충돌 무시
-		if(elementCol != null && playerCol != null)
+		if (elementCol != null && playerCol != null)
 			Physics2D.IgnoreCollision(elementCol, playerCol, true);
 
 		// Rigidbody가 있으면 Kinematic으로
@@ -262,19 +264,7 @@ public class GrapplingHook : MonoBehaviour
 		if (rb != null)
 			rb.bodyType = RigidbodyType2D.Kinematic;
 
-		element.SetParent(transform);
-
-		//if (transformCol != null)
-		//	transformCol.enabled = false;
-
-		// 훅에 있는 플레이어 SpriteRenderer 가져오기
-		SpriteRenderer playerSprite = hook.GetComponent<SpriteRenderer>();
-
-		// followOffset을 기준으로 x를 왼쪽/오른쪽 방향 맞춤
-		Vector3 offset = followOffset;
-		offset.x = playerSprite.flipX ? -Mathf.Abs(followOffset.x) : Mathf.Abs(followOffset.x);
-
-		element.localPosition = offset;
+		element.SetParent(transform);   // 플레이어 자식으로
 
 		disableHook();  // 훅 & 줄 숨기기
 		isAttachElement = true;    // 잡힘
@@ -290,6 +280,16 @@ public class GrapplingHook : MonoBehaviour
 
 		// 부모 해제
 		element.SetParent(null);
+
+		// 태그 변경
+		if (element.gameObject.CompareTag(tagName.enemy))   // 태그가 적일 때
+		{
+			element.gameObject.tag = tagName.throwingEnemy; // 던져지는 적 태그로 변경
+		}
+		else if (element.gameObject.CompareTag(tagName.obj))    // 태그가 오브젝트일 때
+		{
+			element.gameObject.tag = tagName.throwingObj;   // 던져지는 오브젝트 태그로 변경
+		}
 
 		Collider2D enemyCol = element.GetComponent<Collider2D>();
 		Collider2D playerCol = GetComponent<Collider2D>();
@@ -315,11 +315,13 @@ public class GrapplingHook : MonoBehaviour
 	{
 		if (!isAttachElement) return;
 
+		// 훅에 있는 플레이어 SpriteRenderer 가져오기
 		SpriteRenderer playerSprite = GetComponent<SpriteRenderer>();
 		for (int i = 0; i < hookingList.Count; i++)
 		{
 			if (hookingList[i] == null) continue;
 
+			// followOffset을 기준으로 x를 왼쪽/오른쪽 방향 맞춤
 			Vector3 offset = followOffset;
 			offset.x = playerSprite.flipX ? -Mathf.Abs(followOffset.x) : Mathf.Abs(followOffset.x);
 
