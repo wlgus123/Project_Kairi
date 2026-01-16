@@ -83,7 +83,30 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	void OnCollisionEnter2D(Collision2D collision)
 	{
-		 // 바닥 체크
+		CheckGround(collision); // 바닥 체크
+	}
+
+	private void OnCollisionStay2D(Collision2D collision)
+	{
+		CheckGround(collision);	// 바닥 체크
+	}
+
+
+	void OnMove(InputValue value)
+	{
+		inputVec = value.Get<Vector2>();
+	}
+
+	// 플레이어 데미지
+	public void TakeDamage(int attack)
+	{
+		// 플레이어 체력 줄어들기
+		GameManager.Instance.playerStatsRuntime.currentHP -= attack;
+	}
+
+	private void CheckGround(Collision2D collision)
+	{
+		// 바닥 체크
 		foreach (var contact in collision.contacts)
 		{
 			if (contact.normal.y > 0.7f &&
@@ -102,20 +125,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 		{
 			rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
 		}
-
-	}
-
-
-	void OnMove(InputValue value)
-	{
-		inputVec = value.Get<Vector2>();
-	}
-
-	// 플레이어 데미지
-	public void TakeDamage(int attack)
-	{
-		// 플레이어 체력 줄어들기
-		GameManager.Instance.playerStatsRuntime.currentHP -= attack;
 	}
 
 }
