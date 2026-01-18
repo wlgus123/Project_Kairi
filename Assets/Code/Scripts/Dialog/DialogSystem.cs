@@ -49,6 +49,7 @@ public class DialogSystem : MonoBehaviour
     {
         if (!isAction) return;
 
+        if (TimelineController.isTimelinePlaying) return;	// ÄÆ¾À Àç»ý ÁßÀÏ ¶§´Â ½ºÅµ ºÒ°¡
         // ½ºÅµ ¹öÆ°
         if (Keyboard.current != null &&
             Keyboard.current.qKey.wasPressedThisFrame)
@@ -56,7 +57,7 @@ public class DialogSystem : MonoBehaviour
             HandleEnter();
         }
     }
-    void HandleEnter()
+    public void HandleEnter()
     {
         if (isTyping)
         {

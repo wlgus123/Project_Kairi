@@ -28,9 +28,10 @@ public class PlayerController : MonoBehaviour, IDamageable
 	}
 	void FixedUpdate()
 	{
+        if (TimelineController.isTimelinePlaying) return;	// 컷씬 재생 중일 때는 플레이어 컨트롤 불가
         if (interaction && interaction.GetIsAction()) return;
 
-		float speed = GameManager.Instance.playerStatsRuntime.speed;
+        float speed = GameManager.Instance.playerStatsRuntime.speed;
 
         // 그래플 시작 순간
         if (!wasAttach && grappling.isAttach)
@@ -72,8 +73,9 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	void OnJump()
 	{
-		// 플레이어가 바닥이 아닐 경우
-		if (!isGrounded) return;
+        if (TimelineController.isTimelinePlaying) return;	// 컷씬 재생 중일 때는 플레이어 컨트롤 불가
+        // 플레이어가 바닥이 아닐 경우
+        if (!isGrounded) return;
 
 		GameManager.Instance.audioManager.PlayJumpSound(1f);
 		rigid.AddForce(Vector2.up * GameManager.Instance.playerStatsRuntime.jumpForce, ForceMode2D.Impulse);

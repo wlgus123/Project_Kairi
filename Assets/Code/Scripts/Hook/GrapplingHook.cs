@@ -86,7 +86,9 @@ public class GrapplingHook : MonoBehaviour
 	}
 	void Update()
 	{
-		line.SetPosition(0, transform.position);
+        if (TimelineController.isTimelinePlaying) return;   // 컷씬 재생 중일 때는 갈고리 불가
+
+        line.SetPosition(0, transform.position);
 		line.SetPosition(1, hook.position);
 
 		// 갈고리 or 적에 처음 붙었을 때

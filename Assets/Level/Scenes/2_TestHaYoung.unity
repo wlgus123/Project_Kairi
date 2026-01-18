@@ -1308,7 +1308,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
   m_Actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_NotificationBehavior: 0
-  m_UIInputModule: {fileID: 0}
+  m_UIInputModule: {fileID: 509401722}
   m_DeviceLostEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -1363,19 +1363,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96080ce099ea71e4088789d1539497b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hook
-  globalVolume: {fileID: 0}
+  globalVolume: {fileID: 1383601349}
   line: {fileID: 1762199177}
   hook: {fileID: 1914685234}
   isHookActive: 0
   isLineMax: 0
   isAttach: 0
-  isEnemyAttach: 0
-  isObjAttach: 0
+  isAttachElement: 0
   isSlowing: 0
   slowFactor: 0.5
   slowLength: 2
-  enemyFollowOffset: {x: 1, y: 0, z: 0}
-  objFollowOffset: {x: 0, y: 0, z: 0}
   swingBoostController: {fileID: 0}
 --- !u!114 &156809795
 MonoBehaviour:
@@ -1691,7 +1688,7 @@ GameObject:
   - component: {fileID: 199378713}
   m_Layer: 3
   m_Name: TestMap
-  m_TagString: Ceiling
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -18713,7 +18710,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.029957771, y: 2.6840897, z: -10}
+  m_LocalPosition: {x: 4.685515, y: 2.6858497, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -19545,7 +19542,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eda752d879f4f594ea16a2519c84b560, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovingEnemy
-  speed: 2
 --- !u!50 &733997520
 Rigidbody2D:
   serializedVersion: 5
@@ -21629,7 +21625,7 @@ GameObject:
   - component: {fileID: 1089452494}
   m_Layer: 3
   m_Name: TutorialMap
-  m_TagString: Ceiling
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -42566,19 +42562,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae4652db5bd5ae34b83b704d7d6825a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAttack
-  distance: 4
-  atkDistince: 3
-  isLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  speed: 2
-  bullet: {fileID: 8741880085119485871, guid: df16ce6baba54fb438ce16b3598d1684, type: 3}
-  bulletPos: {x: -0.1, y: 0, z: 0}
-  coolTime: 2
-  startPos: {x: 14.95, y: 8.2, z: 0}
-  maxTime: 2
-  curTime: 0
-  aiming: {fileID: 0}
 --- !u!50 &1298111046
 Rigidbody2D:
   serializedVersion: 5
@@ -49706,7 +49689,7 @@ GameObject:
   - component: {fileID: 1914685235}
   m_Layer: 0
   m_Name: Hook
-  m_TagString: Untagged
+  m_TagString: Hook
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
