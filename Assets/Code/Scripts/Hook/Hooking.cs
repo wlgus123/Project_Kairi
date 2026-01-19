@@ -11,10 +11,12 @@ public class Hooking : MonoBehaviour
     public DistanceJoint2D joint2D;
     [Header("훅 최소 길이")]
     public float minHookLength = 2.0f;
+	GrapplingHook grappling;
 
     void Start()
     {
         joint2D = GetComponent<DistanceJoint2D>();     // 현재 오브젝트에 붙어있는 DistanceJoint2D 가져오기
+		grappling = GameManager.Instance.grapplingHook;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -24,7 +26,7 @@ public class Hooking : MonoBehaviour
             joint2D.enabled = true; // 줄 활성화
 
             // 플레이어가 갈고리를 건 위치가 Joint DIstance의 Distance
-            float dist = Vector2.Distance(GameManager.Instance.grapplingHook.transform.position, transform.position);    // 플레이어와 갈고리 사이 거리 계산
+            float dist = Vector2.Distance(grappling.transform.position, transform.position);    // 플레이어와 갈고리 사이 거리 계산
             joint2D.distance = dist;                                                    // 계산된 거리를 Joint의 거리로 설정
 
             if (GameManager.Instance.playerController.isGrounded == true)               // 플레이어가 땅에 붙어 있을 경우
@@ -36,10 +38,10 @@ public class Hooking : MonoBehaviour
             if (!GameManager.Instance.playerController.isGrounded && joint2D.distance <= minDistanceLimit) // 짧을 때 늘리기
                 joint2D.distance = minClampDistance;
 
-            GameManager.Instance.grapplingHook.ApplyHookImpulse(transform.position);    // 힘 주기
-            GameManager.Instance.grapplingHook.isAttach = true;                         // 훅이 연결된 상태
-            GameManager.Instance.grapplingHook.isHookActive = false;                    // 훅 발사 상태 종료
-            GameManager.Instance.grapplingHook.isLineMax = false;                       // 줄 최대 길이 상태 해제
+            grappling.ApplyHookImpulse(transform.position);    // 힘 주기
+            grappling.isAttach = true;                         // 훅이 연결된 상태
+            grappling.isHookActive = false;                    // 훅 발사 상태 종료
+			grappling.isLineMax = false;                       // 줄 최대 길이 상태 해제
 
             // 갈고리가 벽에 박히는 순간 벽과 플레이어 거리가 너무 가깝다면 길이 보정
             if (joint2D.distance < minHookLength)

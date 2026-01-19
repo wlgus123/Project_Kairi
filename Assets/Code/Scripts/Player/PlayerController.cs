@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using static UnityEngine.LowLevelPhysics2D.PhysicsShape;
 
 using playerState = EnumType.PlayerState;
+using tagName = Globals.TagName;
 
 public class PlayerController : MonoBehaviour, IDamageable
 {
@@ -18,16 +19,16 @@ public class PlayerController : MonoBehaviour, IDamageable
 	PlayerInteraction interaction;  // 상호작용
 	private Animator animator;      // 애니메이션
 
-    public float maxTime;			// 땅에서 움직이지 않을 때 일정 시간 이후 Run에서 Idle
-    private float curTime;
+	public float maxTime;           // 땅에서 움직이지 않을 때 일정 시간 이후 Run에서 Idle
+	private float curTime;
 
-    void Awake()
+	void Awake()
 	{
 		rigid = GetComponent<Rigidbody2D>();
 		sprite = GetComponent<SpriteRenderer>();
-		grappling = GetComponent<GrapplingHook>();
 		interaction = GetComponent<PlayerInteraction>();
 		animator = GetComponent<Animator>();
+		grappling = GameManager.Instance.grapplingHook;
 	}
 	void Start()
 	{
@@ -36,33 +37,12 @@ public class PlayerController : MonoBehaviour, IDamageable
 	}
 	void FixedUpdate()
 	{
-        if (TimelineController.isTimelinePlaying) return;    // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
-        if (interaction && interaction.GetIsAction()) return;
+		if (TimelineController.isTimelinePlaying) return;    // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
+		if (interaction && interaction.GetIsAction()) return;
 
-        float speed = GameManager.Instance.playerStatsRuntime.speed;
+		float speed = GameManager.Instance.playerStatsRuntime.speed;
 
-		if (isGrounded)
-		{
-			// 플레이어가 가만히 있을 때
-			if (inputVec == Vector2.zero)
-			{
-				
-                curTime += Time.deltaTime;
-                if (curTime >= maxTime)
-				{
-                    SetPlayerState(playerState.Idle);
-                }
-			}
-			else
-			{
-				curTime = 0;
-				SetPlayerState(playerState.Run);
-			}
-		}
-		else
-		{
-			SetPlayerState(playerState.Idle);
-		}
+		UpdateAnimation();  // 애니메이션
 
 		// 그래플 시작 순간
 		if (!wasAttach && grappling.isAttach)
@@ -101,12 +81,11 @@ public class PlayerController : MonoBehaviour, IDamageable
 		wasAttach = grappling.isAttach;
 	}
 
-
 	void OnJump()
 	{
-        if (TimelineController.isTimelinePlaying) return;	// 컷씬 재생 중일 때는 플레이어 컨트롤 불가
-        // 플레이어가 바닥이 아닐 경우
-        if (!isGrounded) return;
+		if (TimelineController.isTimelinePlaying) return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
+															// 플레이어가 바닥이 아닐 경우
+		if (!isGrounded) return;
 
 		GameManager.Instance.audioManager.PlayJumpSound(1f);
 		rigid.AddForce(Vector2.up * GameManager.Instance.playerStatsRuntime.jumpForce, ForceMode2D.Impulse);
@@ -126,13 +105,15 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	private void OnCollisionExit2D(Collision2D collision)
 	{
-		isGrounded = false;
+		if (collision.gameObject.CompareTag(tagName.ground))
+			isGrounded = false;
 	}
 
 
 	void OnMove(InputValue value)
 	{
 		inputVec = value.Get<Vector2>();
+		SetPlayerState(playerState.Run);
 	}
 
 	// 플레이어 데미지
@@ -161,14 +142,36 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 		// y값 보정 (바닥 뚫림 방지)
 		if (isGrounded && rigid.linearVelocityY < 0f)
-		{
 			rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
-		}
 	}
 
 	// 플레이어 상태 변경
 	void SetPlayerState(playerState state)
 	{
-		animator.SetInteger("playerState", (int)state);
+		animator.SetInteger(Globals.AnimationVarName.playerState, (int)state);
+	}
+
+	// 애니메이션 업데이트
+	void UpdateAnimation()
+	{
+		if (isGrounded)
+		{
+			// 플레이어가 가만히 있을 때
+			if (inputVec == Vector2.zero)
+			{
+				curTime += Time.deltaTime;
+				if (curTime >= maxTime)
+					SetPlayerState(playerState.Idle);
+			}
+			else
+			{
+				curTime = 0;
+				SetPlayerState(playerState.Run);
+			}
+		}
+		else
+		{
+			SetPlayerState(playerState.Idle);
+		}
 	}
 }

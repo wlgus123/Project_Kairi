@@ -20,14 +20,14 @@ namespace EnumType
 	// 적 상태
 	public enum EnemyState
 	{
-		None = 0,	// 기본
+		Idle = 0,	// 기본
 		Thrown,		// 던져짐
 	}
 
 	// 오브젝트 상태
 	public enum ObjState
 	{
-		None = 0,	// 기본
+		Idle = 0,	// 기본
 		Thrown,		// 던져짐
 	}
 

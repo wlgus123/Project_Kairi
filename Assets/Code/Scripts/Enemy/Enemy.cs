@@ -7,7 +7,7 @@ public class Enemy : MonoBehaviour, IDamageable
 
 	void Start()
 	{
-		state = EnumType.EnemyState.None;   // 상태 초기화
+		state = EnumType.EnemyState.Idle;   // 상태 초기화
 		currStat = new EnemyStatsRuntime(GameManager.Instance.enemyStats);  // 각 스탯 초기화
 	}
 

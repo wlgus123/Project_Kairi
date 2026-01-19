@@ -5,11 +5,17 @@
 
 public class Globals
 {
-	// 씬 이름
+	// 씬 이름(string) 관련 클래스
 	public static class SceneName
 	{
-		public static readonly string mainMenu = "1_MainMenu";
-		public static readonly string stage01 = "2_Stage0_1";
+		public static readonly string mainMenu = "1_MainMenu";	// 1: 메인메뉴
+		public static readonly string stage01 = "2_Stage0_1";	// 2: 0-1 스테이지
+	}
+
+	// 애니메이션 이름(string) 관련 클래스
+	public static class AnimationVarName
+	{
+		public static readonly string playerState = "playerState";	// 플레이어 상태
 	}
 
 	// 태그 이름(string) 관련 클래스
