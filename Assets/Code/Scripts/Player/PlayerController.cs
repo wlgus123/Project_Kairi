@@ -34,14 +34,18 @@ public class PlayerController : MonoBehaviour, IDamageable
 		isGrounded = true;
 		SetPlayerState(playerState.Idle);
 	}
-	void FixedUpdate()
+
+    void Update()
+    {
+        if (TimelineController.isTimelinePlaying) return;	 // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
+        UpdateAnimation(); // 애니메이션
+    }
+    void FixedUpdate()
 	{
-		if (TimelineController.isTimelinePlaying) return;    // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
 		if (interaction && interaction.GetIsAction()) return;
 
 		float speed = GameManager.Instance.playerStatsRuntime.speed;
 
-		UpdateAnimation();  // 애니메이션
 
 		// 그래플 시작 순간
 		if (!wasAttach && grappling.isAttach)
@@ -113,7 +117,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 	{
         if (TimelineController.isTimelinePlaying) return;    // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
         inputVec = value.Get<Vector2>();
-		SetPlayerState(playerState.Run);
 	}
 
 	// 플레이어 데미지
@@ -157,19 +160,22 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (TimelineController.isTimelinePlaying) return;    // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
         if (isGrounded)
 		{
-			// 플레이어가 가만히 있을 때
-			if (inputVec == Vector2.zero)
-			{
-				curTime += Time.deltaTime;
-				if (curTime >= maxTime)
-					SetPlayerState(playerState.Idle);
-			}
-			else
-			{
-				curTime = 0;
-				SetPlayerState(playerState.Run);
-			}
-		}
+            // 플레이어가 가만히 있을 때
+            bool hasMoveInput = Mathf.Abs(inputVec.x) > 0.01f;
+
+            if (!hasMoveInput)
+            {
+                curTime += Time.deltaTime;
+
+                if (curTime >= maxTime)
+                    SetPlayerState(playerState.Idle);
+            }
+            else
+            {
+                SetPlayerState(playerState.Run);
+                curTime = 0f;
+            }
+        }
 		else
 		{
 			SetPlayerState(playerState.Idle);

@@ -43,6 +43,11 @@ public class EnemyBullet : MonoBehaviour
             // TODO : 데미지 처리
             ReturnToPool();
         }
+
+        if (!other.isTrigger && !other.CompareTag("Player") && !other.CompareTag("Enemy"))
+        {
+            ReturnToPool();
+        }
     }
 
     void ReturnToPool()
