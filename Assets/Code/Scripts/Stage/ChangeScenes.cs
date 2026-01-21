@@ -20,10 +20,13 @@ public class ChangeScenes : MonoBehaviour
         }
     }
 
-    void LoadNextScene()
-    {
-        int nextIndex = SceneManager.GetActiveScene().buildIndex + 1;
-        SceneManager.LoadScene(nextIndex);
+	void LoadNextScene()
+	{
+		if (SceneManager.GetActiveScene().buildIndex < 3)
+		{
+			int nextIndex = SceneManager.GetActiveScene().buildIndex + 1;
+			SceneManager.LoadScene(nextIndex);
+		}
     }
 
 }

@@ -26758,9 +26758,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1762199177}
     - target: {fileID: 1031755658764454315, guid: aacc80020f45af9459318ec226fa961d, type: 3}
+      propertyPath: mainCam
+      value: 
+      objectReference: {fileID: 519420031}
+    - target: {fileID: 1031755658764454315, guid: aacc80020f45af9459318ec226fa961d, type: 3}
       propertyPath: globalVolume
       value: 
       objectReference: {fileID: 1383601349}
+    - target: {fileID: 1031755658764454315, guid: aacc80020f45af9459318ec226fa961d, type: 3}
+      propertyPath: visualizerLine
+      value: 
+      objectReference: {fileID: 1965681169}
     - target: {fileID: 1276845852994878136, guid: aacc80020f45af9459318ec226fa961d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -25.19
