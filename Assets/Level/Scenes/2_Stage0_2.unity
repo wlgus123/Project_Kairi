@@ -20458,7 +20458,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2424511f0d07b934790a94e57c7f3bbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundScrolling
-  speed: 0.05
+  speed: 0.01
 --- !u!114 &1602950741
 MonoBehaviour:
   m_ObjectHideFlags: 0
