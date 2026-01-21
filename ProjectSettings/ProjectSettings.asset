@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: FrogGame
+  productName: TeamProject
   defaultCursor: {fileID: 2800000, guid: 1e2e0642eff513b4ab4627849d303655, type: 3}
   cursorHotspot: {x: 30, y: 30}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
