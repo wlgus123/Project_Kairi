@@ -55,20 +55,34 @@ public class EnemyAttack : MonoBehaviour
     private void FixedUpdate()
     {
         Vector2 rayDir = transform.right * moveDirection;
-        RaycastHit2D raycast = Physics2D.CapsuleCast(transform.position,new Vector2(3f, 16f),   // 감지범위
-            CapsuleDirection2D.Vertical, 0f, rayDir, distance, isLayer);
+        RaycastHit2D raycast = Physics2D.CapsuleCast(
+            transform.position,
+            new Vector2(3f, 16f),
+            CapsuleDirection2D.Vertical,
+            0f,
+            rayDir,
+            distance,
+            isLayer
+        );
 
-        if (raycast.collider != null)      // 플레이어 감지
+        if (raycast.collider != null)
         {
             curTime = 0;
-            Transform player = raycast.collider.transform;
-            detectTimer += Time.deltaTime; // 감지 시간 증가
-            float dist = Vector2.Distance(transform.position, player.position);
+
+            if (targetPlayer == null)
+                targetPlayer = raycast.collider.transform;
+        }
+
+        if (targetPlayer != null)
+        {
+            float dist = Vector2.Distance(transform.position, targetPlayer.position);
 
             if (dist < atkDistince)
             {
-                line.SetPosition(0, enemyTransform.position);   // 조준선 잇기
-                line.SetPosition(1, player.position);
+                line.SetPosition(0, enemyTransform.position);
+                line.SetPosition(1, targetPlayer.position);
+
+                detectTimer += Time.deltaTime;
 
                 if (detectTimer < detectDelay)
                 {
@@ -80,69 +94,66 @@ public class EnemyAttack : MonoBehaviour
                         blinking = false;
                     }
                     else
-                        blinking = true;    // 1초 남았을 때 깜빡임
+                        blinking = true;
 
-                    CreateAiming(player);
+                    CreateAiming(targetPlayer);
                 }
                 else
                 {
                     attackWindowTimer += Time.deltaTime;
-                    blinking = true;        // 쿨타임 진입해도 깜빡임 유지
+                    blinking = true;
 
-                    if (attackWindowTimer >= attackWindowTime)
-                    {
-                        currentTime = coolTime;
-                        detectTimer = 0f;
-                        attackWindowTimer = 0f;
-                        RemoveAiming();
-                    }
-                    else if (currentTime <= 0)
+                    if (currentTime <= 0)
                     {
                         GameManager.Instance.poolManager.SpawnFromPool("Bullet", transform.position + bulletPos, transform.rotation);
                         currentTime = coolTime;
                         RemoveAiming();
                     }
+
+                    if (attackWindowTimer >= attackWindowTime)
+                    {
+                        currentTime = coolTime;
+                        ResetAttackState();
+                    }
                 }
             }
             else
-            {
-                ResetAttackState();     // 추적 상태 (조준 X)
-                transform.position = Vector3.MoveTowards(transform.position, player.position, Time.deltaTime * speed);
-            }
+                transform.position = Vector3.MoveTowards(transform.position, targetPlayer.position, Time.deltaTime * speed);
 
             if (currentTime > 0)
                 currentTime -= Time.deltaTime;
         }
-        else // 플레이어 미감지
+        else
         {
-            ResetAttackState();
             curTime += Time.deltaTime;
+
             if (curTime >= maxTime)
                 transform.position = Vector3.MoveTowards(transform.position, startPos, Time.deltaTime * speed);
         }
-  
-        if (blinking)       // 조준선 깜빡임 처리
+
+        if (blinking)
         {
             line.enabled = Mathf.FloorToInt(Time.time * blinkSpeed) % 2 == 0;
             line.startColor = Color.red;
             line.endColor = Color.red;
         }
 
-        if (raycast.collider == null && curTime >= maxTime)     // 순찰 방향 전환
+        if (raycast.collider == null && targetPlayer == null && curTime >= maxTime)
             moveDirection *= -1;
 
         Debug.DrawRay(transform.position + Vector3.up, rayDir * distance, Color.red);
         Debug.DrawRay(transform.position - Vector3.up, rayDir * distance, Color.red);
     }
-    void ResetAttackState() // 초기화
+    void ResetAttackState()
     {
         detectTimer = 0f;
         attackWindowTimer = 0f;
         blinking = false;
         line.enabled = false;
         RemoveAiming();
-    }  
-    void CreateAiming(Transform player) // 조준 생성
+        targetPlayer = null;
+    }
+    void CreateAiming(Transform player)
     {
         if (currentAiming == null)
         {
@@ -150,25 +161,24 @@ public class EnemyAttack : MonoBehaviour
             currentAiming.transform.SetParent(player);
             currentAiming.transform.localPosition = Vector3.zero;
             currentAiming.transform.localRotation = Quaternion.identity;
-
-            targetPlayer = player;
         }
     }
-    void RemoveAiming() // 조준 제거
+    void RemoveAiming()
     {
         if (currentAiming != null)
         {
             Destroy(currentAiming);
             currentAiming = null;
-            targetPlayer = null;
         }
     }
     private void OnDisable()
     {
         RemoveAiming();
+        targetPlayer = null;
     }
     private void OnDestroy()
     {
         RemoveAiming();
+        targetPlayer = null;
     }
 }
