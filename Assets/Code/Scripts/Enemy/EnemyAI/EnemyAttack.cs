@@ -41,6 +41,7 @@ public class EnemyAttack : MonoBehaviour
     LineRenderer line;
 
     private bool isAttacking = false;
+    public bool isGrabbed = false;
 
     private void Start()
     {
@@ -68,6 +69,12 @@ public class EnemyAttack : MonoBehaviour
             distance,
             isLayer
         );
+
+        if (isGrabbed)
+        {
+            ResetAttackState(); // 조준선, 에이밍 UI 제거
+            return;
+        }
 
         if (raycast.collider != null && targetPlayer == null)
         {
@@ -179,7 +186,7 @@ public class EnemyAttack : MonoBehaviour
         Debug.DrawRay(transform.position - Vector3.up, rayDir * distance, Color.red);
     }
 
-    void ResetAttackState()
+    public void ResetAttackState()
     {
         detectTimer = 0f;
         attackWindowTimer = 0f;
@@ -188,6 +195,29 @@ public class EnemyAttack : MonoBehaviour
         RemoveAiming();
         isAttacking = false;
     }
+
+    public void ResetAfterThrown()
+    {
+        isGrabbed = false;
+        isAttacking = false;
+
+        // 타겟을 null로 만들면 적이 다시 플레이어를 감지(Raycast)해야 공격을 시작합니다.
+        // 만약 던져지자마자 다시 공격하게 하고 싶다면 targetPlayer는 유지하는게 좋습니다.
+        targetPlayer = null;
+        targetAimPoint = null;
+
+        detectTimer = 0f;
+        attackWindowTimer = 0f;
+        currentTime = 0f; // 즉시 발사 가능하도록 0으로 설정
+        curTime = 0f;     // 복귀 타이머 초기화
+
+        blinking = false;
+        if (line != null)
+            line.enabled = false;
+
+        RemoveAiming();
+    }
+
 
     void CreateAiming(Transform player)
     {

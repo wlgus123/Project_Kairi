@@ -327,7 +327,15 @@ public class GrapplingHook : MonoBehaviour
     {
 		if (hookingList.Contains(element) || isAttachElement) return;
 
-		hookingList.Add(element);   // 리스트에 추가하기
+        EnemyAttack enemyAttack = element.GetComponent<EnemyAttack>();
+        if (enemyAttack != null)
+            enemyAttack.isGrabbed = true;
+
+        EnemyController enemyController = element.GetComponent<EnemyController>();
+        if (enemyController != null)
+            enemyController.isGrounded = false;
+
+        hookingList.Add(element);   // 리스트에 추가하기
 		Collider2D elementCol = element.GetComponent<Collider2D>();
 		Collider2D playerCol = GetComponent<Collider2D>();
         Rigidbody2D rb = element.GetComponent<Rigidbody2D>();   
@@ -346,8 +354,14 @@ public class GrapplingHook : MonoBehaviour
 	public void ThrowElement(Transform element, Vector2 throwDir)   // 던지기
     {
 		if (!hookingList.Contains(element)) return;
+        EnemyAttack enemyAttack = element.GetComponent<EnemyAttack>();
+        if (enemyAttack != null)
+        {
+            enemyAttack.isGrabbed = false;
+            enemyAttack.ResetAttackState();
+        }
 
-		GameManager.Instance.audioManager.HookThrowEnemySound(1f);  // 적 던지는 효과음
+        GameManager.Instance.audioManager.HookThrowEnemySound(1f);  // 적 던지는 효과음
 		hookingList.Remove(element);
 		element.SetParent(null);    // 부모 해제
 
