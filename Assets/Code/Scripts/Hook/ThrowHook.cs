@@ -31,12 +31,13 @@ public class ThrowHook : MonoBehaviour
 
 				isHookActive = true;
 			}
-			else
-			{
-				DestroyHook();  // »≈ ªË¡¶
+		}
+		// ∏∂øÏΩ∫∏¶ ∂Æ¿ª ∂ß
+		if (Mouse.current.leftButton.wasReleasedThisFrame)
+		{
+			DestroyHook();  // »≈ ªË¡¶
 
-				isHookActive = false;
-			}
+			isHookActive = false;
 		}
 	}
 

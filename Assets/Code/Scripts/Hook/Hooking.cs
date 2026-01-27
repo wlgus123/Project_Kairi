@@ -21,8 +21,7 @@ public class Hooking : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(false)
-        //if (collision.CompareTag(tagName.ground)) // 갈고리가 특정 태그에 닿았을 때
+        if (collision.CompareTag(tagName.ground)) // 갈고리가 특정 태그에 닿았을 때
         {
             joint2D.enabled = true; // 줄 활성화
 
