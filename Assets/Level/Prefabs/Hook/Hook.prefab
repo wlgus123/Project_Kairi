@@ -199,7 +199,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TestHooking
   destiny: {x: 0, y: 0}
   speed: 1
-  distance: 2
+  distance: 0.5
   nodePrefab: {fileID: 823732968313112340, guid: b98613e61ad8b9f4f89486bda412abc8, type: 3}
   player: {fileID: 0}
   lastNode: {fileID: 0}
@@ -265,7 +265,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.3968258
+        value: 0.15723798
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -309,7 +309,7 @@ LineRenderer:
     numCapVertices: 0
     alignment: 0
     textureMode: 1
-    textureScale: {x: 1, y: 1}
+    textureScale: {x: 2, y: 1}
     shadowBias: 0.5
     generateLightingData: 0
   m_UseWorldSpace: 1

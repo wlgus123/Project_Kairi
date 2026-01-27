@@ -5,7 +5,7 @@ public class TestHooking : MonoBehaviour
 {
 	public Vector2 destiny;
 	public float speed = 1f;		// TODO: 스크립터블 오브젝트에 있는 speed로 사용하기
-	public float distance = 2f;		// TODO: 스크립터블 오브젝트에 있는 값으로 사용하기
+	public float distance = 0.5f;	// TODO: 스크립터블 오브젝트에 있는 값으로 사용하기
 	bool isAttach = false;          // 플레이어가 갈고리를 사용했는지
 
 	[Header("노드 프리펩")] public GameObject nodePrefab;   // 노드 프리펩
@@ -29,12 +29,12 @@ public class TestHooking : MonoBehaviour
 	{
 		transform.position = Vector2.MoveTowards(transform.position, destiny, speed);
 
-		// 훅이 이동중인지 확인
-		if ((Vector2)transform.position != destiny)
+        // 훅이 이동중인지 확인
+        if ((Vector2)transform.position != destiny)
 		{
 			// 두 벡터 사이의 거리 확인
 			// 위에서 지정한 거리보다 클 경우 노드 생성
-			if (Vector2.Distance(player.transform.position, lastNode.transform.position) > distance)
+			while (Vector2.Distance(player.transform.position, lastNode.transform.position) > distance)
 			{
 				CreateNode();
 			}
@@ -66,6 +66,7 @@ public class TestHooking : MonoBehaviour
 		line.SetPosition(i, player.transform.position);		// 마지막 라인렌더러는 플레이어 위치로 이동
 	}
 
+	// 노드 생성
 	void CreateNode()
 	{
 		Vector2 createPos = player.transform.position - lastNode.transform.position;    // 노드 생성 위치
@@ -85,4 +86,13 @@ public class TestHooking : MonoBehaviour
 
 		++vertexCnt;	// 점 갯수 증가
 	}
+
+	// 노드 제거
+	//void DeleteNode()
+	//{
+	//	for(int i = 0; i < nodeList.Count; i++)
+	//	{
+
+	//	}
+	//}
 }
