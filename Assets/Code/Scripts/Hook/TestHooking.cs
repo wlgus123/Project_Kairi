@@ -33,11 +33,8 @@ public class TestHooking : MonoBehaviour
         if ((Vector2)transform.position != destiny)
 		{
 			// 두 벡터 사이의 거리 확인
-			// 위에서 지정한 거리보다 클 경우 노드 생성
-			while (Vector2.Distance(player.transform.position, lastNode.transform.position) > distance)
-			{
-				CreateNode();
-			}
+			// 위에서 지정한 거리보다 클 동안 노드 생성
+			while (Vector2.Distance(player.transform.position, lastNode.transform.position) > distance)	CreateNode();
 		}
 		else if (!isAttach) // 갈고리를 사용하지 않을 경우
 		{
@@ -59,9 +56,7 @@ public class TestHooking : MonoBehaviour
 
 		int i;
 		for (i = 0; i < nodeList.Count; i++)
-		{
 			line.SetPosition(i, nodeList[i].transform.position);
-		}
 
 		line.SetPosition(i, player.transform.position);		// 마지막 라인렌더러는 플레이어 위치로 이동
 	}
