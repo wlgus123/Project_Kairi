@@ -621,7 +621,6 @@ GameObject:
   - component: {fileID: 135085511}
   - component: {fileID: 135085510}
   - component: {fileID: 135085509}
-  - component: {fileID: 135085508}
   m_Layer: 0
   m_Name: CrackPlatform
   m_TagString: Untagged
@@ -629,22 +628,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &135085508
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 135085507}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 321d315462e5c55488b68ce9fc41b7d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CrackPlatform
-  crackObject: 0
-  maxCount: 3
-  count: 0
-  sprite: {fileID: 0}
 --- !u!50 &135085509
 Rigidbody2D:
   serializedVersion: 5
@@ -26640,7 +26623,6 @@ GameObject:
   - component: {fileID: 1968028552}
   - component: {fileID: 1968028551}
   - component: {fileID: 1968028556}
-  - component: {fileID: 1968028555}
   m_Layer: 0
   m_Name: Object
   m_TagString: Object
@@ -26795,18 +26777,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1968028555
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1968028550}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f07c033ce588fb41ab7d6fe1e8133be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GrabbableObject
 --- !u!114 &1968028556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26819,7 +26789,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5575f981a9e4c3409d62cd0e38d3c82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectController
-  explosion: 1
+  explosionObject: 0
   explosionEffectPrefab: {fileID: 3819339655105006539, guid: 94e30e35b8ef3fb4a890f6f78b5c13ca, type: 3}
   crackObject: 1
   maxCount: 20
