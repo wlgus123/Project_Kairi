@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEngine.UI;
 using static UnityEngine.LowLevelPhysics2D.PhysicsShape;
 
 using playerState = EnumType.PlayerState;
@@ -24,7 +25,21 @@ public class PlayerController : MonoBehaviour, IDamageable
 	private float curTime;
 	public Canvas damagedCanvas;
 
-	void Awake()
+    public Slider slowGaugeSlider;	// 슬로우 게이지 UI
+    bool isSlow = false;	// 슬로우 상태
+
+    [Header("슬로우 비율")]
+    public float slowFactor;
+	[Header("슬로우 게이지 최대치")]
+	public float slowMaxGauge;
+    [Header("슬로우 게이지 현재치")]
+    public float slowGauge;
+    [Header("슬로우 게이지 감소 속도")]
+    public float slowDecreaseRate;
+    [Header("슬로우 게이지 회복 속도")]
+    public float slowRecoverRate;
+
+    void Awake()
 	{
 		rigid = GetComponent<Rigidbody2D>();
 		sprite = GetComponent<SpriteRenderer>();
@@ -46,6 +61,15 @@ public class PlayerController : MonoBehaviour, IDamageable
             inputVec = Vector2.zero;
             return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
         }
+        // 슬로우 모드
+        if (Keyboard.current.leftShiftKey.wasPressedThisFrame)
+		{
+            if (!isSlow && slowGauge > 0f)
+                StartSlow();
+			else
+                StopSlow();
+        }
+        UpdateSlowGauge();	// 슬로우 게이지 업데이트
         UpdateAnimation(); // 애니메이션
     }
     void FixedUpdate()
@@ -209,4 +233,57 @@ public class PlayerController : MonoBehaviour, IDamageable
 			SetPlayerState(playerState.Idle);
 		}
 	}
+    // 슬로우 게이지 업데이트
+    void UpdateSlowGauge()
+    {
+        if (isSlow)
+        {
+            slowGauge -= slowDecreaseRate * Time.unscaledDeltaTime;
+
+            if (slowGauge <= 0f)
+            {
+                slowGauge = 0f;
+                StopSlow(); // 자동 해제
+            }
+        }
+        else
+        {
+            slowGauge += slowRecoverRate * Time.unscaledDeltaTime;
+            if (slowGauge > slowMaxGauge)
+                slowGauge = slowMaxGauge;
+        }
+
+        slowGaugeSlider.value = slowGauge / slowMaxGauge;
+    }
+
+    // 슬로우 효과 종료
+    void StopSlow()
+    {
+        if (!isSlow) return;
+
+        isSlow = false;
+
+        // 시간 원래대로
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
+
+        // 그래픽 복구
+        sprite.color = Color.white;
+    }
+    // 슬로우 효과 시작
+    void StartSlow()
+    {
+        if (isSlow) return;
+
+        isSlow = true;
+
+        // 슬로우 효과 적용
+        sprite.color = Color.red;
+
+        Time.timeScale = slowFactor;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+    }
+
+
+
 }
