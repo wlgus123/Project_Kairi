@@ -641,8 +641,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 321d315462e5c55488b68ce9fc41b7d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CrackPlatform
+  crackObject: 0
   maxCount: 3
   count: 0
+  sprite: {fileID: 0}
 --- !u!50 &135085509
 Rigidbody2D:
   serializedVersion: 5
@@ -26639,7 +26641,6 @@ GameObject:
   - component: {fileID: 1968028551}
   - component: {fileID: 1968028556}
   - component: {fileID: 1968028555}
-  - component: {fileID: 1968028557}
   m_Layer: 0
   m_Name: Object
   m_TagString: Object
@@ -26820,22 +26821,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObjectController
   explosion: 1
   explosionEffectPrefab: {fileID: 3819339655105006539, guid: 94e30e35b8ef3fb4a890f6f78b5c13ca, type: 3}
-  isGrounded: 0
-  hasCollided: 0
---- !u!114 &1968028557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1968028550}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 321d315462e5c55488b68ce9fc41b7d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CrackPlatform
+  crackObject: 1
   maxCount: 20
   count: 0
+  playerDieObject: 0
+  isGrounded: 0
+  hasCollided: 0
 --- !u!114 &1990931458
 MonoBehaviour:
   m_ObjectHideFlags: 0

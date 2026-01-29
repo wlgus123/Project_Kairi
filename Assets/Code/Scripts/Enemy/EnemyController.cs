@@ -30,7 +30,7 @@ public class EnemyController : MonoBehaviour
     void Update()
 	{
         if (isGrounded && rigid.linearVelocity == Vector2.zero)
-            gameObject.tag = "Enemy";
+            gameObject.tag = tagName.enemy;
     }
     public void CheckGround(Collision2D collision)
     {
