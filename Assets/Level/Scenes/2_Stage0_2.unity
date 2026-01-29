@@ -26788,7 +26788,7 @@ Transform:
   m_GameObject: {fileID: 1968028550}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.529999, y: -4.49, z: 0}
+  m_LocalPosition: {x: -18.02, y: -3.89, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -26818,6 +26818,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5575f981a9e4c3409d62cd0e38d3c82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectController
+  explosion: 1
+  explosionEffectPrefab: {fileID: 3819339655105006539, guid: 94e30e35b8ef3fb4a890f6f78b5c13ca, type: 3}
   isGrounded: 0
   hasCollided: 0
 --- !u!114 &1968028557

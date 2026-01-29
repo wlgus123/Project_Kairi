@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using tagName = Globals.TagName;    // 태그
 using static Globals;
 
@@ -6,6 +7,8 @@ public class ObjectController : MonoBehaviour
 {
 	GrabbableObject obj;
     Rigidbody2D rigid;
+    public bool explosion;
+    public GameObject explosionEffectPrefab;
     public bool isGrounded;
     public bool hasCollided = false;
 
@@ -51,14 +54,34 @@ public class ObjectController : MonoBehaviour
 
         if (gameObject.CompareTag(tagName.throwingObj))
         {
-            // 적과 닿았을 경우
-            if (other.gameObject.CompareTag(tagName.enemy))
+            if (other.gameObject.CompareTag(tagName.enemy))     // 적과 닿았을 경우
             {
                 if (other.gameObject.TryGetComponent<Enemy>(out var target))
                     target.TakeDamage(1);       // 닿은 적에게 데미지 주기
             }
         }
+
+        if (explosion && other.gameObject.CompareTag(tagName.enemy))
+        {
+            if (other.gameObject.TryGetComponent<Enemy>(out var target))
+            {
+                target.TakeDamage(1);       // 닿은 적에게 데미지 주기
+                Vector2 hitPoint = other.contacts[0].point;
+                StartCoroutine(SpawnExplosionEffect(hitPoint));
+
+                Destroy(gameObject); // 투척 오브젝트 제거
+            }
+        }
     }
+    IEnumerator SpawnExplosionEffect(Vector2 position)
+    {
+        GameObject effect = Instantiate(explosionEffectPrefab, position, Quaternion.identity);
+
+        yield return new WaitForSeconds(1.07f);
+
+        Destroy(effect);
+    }
+
     void OnCollisionStay2D(Collision2D collision)
     {
         CheckGround(collision);     // 바닥 체크
