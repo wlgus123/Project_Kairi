@@ -31,6 +31,10 @@ public class PlayerController : MonoBehaviour, IDamageable
     public bool hasCollided = false;
     [Header("슬로우 상태")]
     public bool isSlow = false;
+    [Header("걷기 사운드")]
+    public float walkSoundInterval = 0.7f;
+    private float walkSoundTimer = 0f;
+    public bool isWalking = false;
 
     public Vector2 inputVec;
     Rigidbody2D rigid;
@@ -65,6 +69,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         HandleSlowMode();           // 슬로우 모드
         UpdateSlowGauge();	        // 슬로우 게이지 업데이트
         UpdateAnimation();          // 애니메이션
+        HandleWalkSound();          // 걷기 사운드
     }
 
     void FixedUpdate()
@@ -139,6 +144,24 @@ public class PlayerController : MonoBehaviour, IDamageable
         wasAttach = grappling.isAttach;     // 상태 저장 (맨 마지막!)
     }
 
+    void HandleWalkSound()
+    {
+        if (!isWalking)
+        {
+            walkSoundTimer = 0f; // 멈추면 타이머 리셋
+            return;
+        }
+
+        walkSoundTimer += Time.deltaTime;
+
+        if (walkSoundTimer >= walkSoundInterval)
+        {
+            GameManager.Instance.audioManager.PlayWalkSound(1f);
+            walkSoundTimer = 0f;
+        }
+    }
+
+
     public void HandleFlip()    // 방향 플립
     {
         if (inputVec.x > 0) 
@@ -211,15 +234,20 @@ public class PlayerController : MonoBehaviour, IDamageable
 
                 if (curTime >= maxTime)
                     SetPlayerState(playerState.Idle);
+                isWalking = false;
             }
             else
             {
                 SetPlayerState(playerState.Run);
                 curTime = 0f;
+                isWalking = true;
             }
         }
 		else
+        {
             SetPlayerState(playerState.Idle);
+            isWalking = false;
+        }
     }
    
     void UpdateSlowGauge()      // 슬로우 게이지 업데이트

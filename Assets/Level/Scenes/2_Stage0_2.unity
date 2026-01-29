@@ -14046,7 +14046,7 @@ MonoBehaviour:
   sfxSource: {fileID: 1169761309}
   playerDamaged: {fileID: 8300000, guid: 8a69d4d13b748c24487b2713d11d95a1, type: 3}
   playerJump: {fileID: 8300000, guid: 961a135e7c1a0bb4f8f732686841b7a5, type: 3}
-  playerWalk: {fileID: 0}
+  playerWalk: {fileID: 8300000, guid: 01ef6db436d239342baf7166fc93529c, type: 3}
   enemyAttack: {fileID: 8300000, guid: 2aa4e739239971349859b22ce2740c8d, type: 3}
   enemyShoot: {fileID: 8300000, guid: 65f3a4ec35166f841a429aabf0d9f30c, type: 3}
   hookAttach: {fileID: 8300000, guid: 723251075cda21e4e82b4b82d0d25156, type: 3}
@@ -27346,6 +27346,10 @@ PrefabInstance:
       propertyPath: slowGaugeSlider
       value: 
       objectReference: {fileID: 1846572669}
+    - target: {fileID: 4756874103759277193, guid: aacc80020f45af9459318ec226fa961d, type: 3}
+      propertyPath: walkSoundInterval
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6031363488768780692, guid: aacc80020f45af9459318ec226fa961d, type: 3}
       propertyPath: m_Camera
       value: 
