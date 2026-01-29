@@ -163,6 +163,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     // 플레이어 데미지
     public void TakeDamage(int attack)
     {
+        GameManager.Instance.audioManager.PlayDamagedSound(1f);     // 데미지 사운드 재생
         // 체력 감소
         GameManager.Instance.playerStatsRuntime.currentHP -= attack;
 

@@ -179,7 +179,8 @@ public class FlexibleEnemy : MonoBehaviour
 
                     if (currentTime <= 0)
                     {
-                        GameManager.Instance.poolManager.SpawnFromPool("Rock", transform.position + bulletPos, transform.rotation);
+                        GameManager.Instance.audioManager.EnemyShootSound(1f);      // 발사 사운드 재생
+                        GameManager.Instance.poolManager.SpawnFromPool("Rock", transform.position + bulletPos, transform.rotation);     // Rock 소환
                         currentTime = coolTime;
                     }
                 }
@@ -271,6 +272,7 @@ public class FlexibleEnemy : MonoBehaviour
 
         if (atkTimer <= 0f)
         {
+            GameManager.Instance.audioManager.EnemyAttackSound(1f);      // 근거리 사운드 재생
             GameManager.Instance.playerController.TakeDamage(1);
             Debug.Log("플레이어 근거리 피격");
             atkTimer = atkCooldown;

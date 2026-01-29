@@ -183,7 +183,8 @@ public class EnemyAttack : MonoBehaviour
 
                     if (currentTime <= 0)
                     {
-                        GameManager.Instance.poolManager.SpawnFromPool("Bullet", transform.position + bulletPos, transform.rotation);
+                        GameManager.Instance.audioManager.EnemyShootSound(1f);      // 발사 사운드 재생
+                        GameManager.Instance.poolManager.SpawnFromPool("Bullet", transform.position + bulletPos, transform.rotation);   // Bullet 소환
                         currentTime = coolTime;
                         RemoveAiming();
                     }

@@ -14044,13 +14044,16 @@ MonoBehaviour:
   audioMixer: {fileID: 24100000, guid: fab71654d6c2f7f4bbcf9f45ab4f24e7, type: 2}
   bgmSource: {fileID: 1207965721}
   sfxSource: {fileID: 1169761309}
+  playerDamaged: {fileID: 8300000, guid: 8a69d4d13b748c24487b2713d11d95a1, type: 3}
   playerJump: {fileID: 8300000, guid: 961a135e7c1a0bb4f8f732686841b7a5, type: 3}
   playerWalk: {fileID: 0}
+  enemyAttack: {fileID: 8300000, guid: 2aa4e739239971349859b22ce2740c8d, type: 3}
+  enemyShoot: {fileID: 8300000, guid: 65f3a4ec35166f841a429aabf0d9f30c, type: 3}
   hookAttach: {fileID: 8300000, guid: 723251075cda21e4e82b4b82d0d25156, type: 3}
   hookDraft: {fileID: 8300000, guid: 0056bba062b850442a3ea463858dbeeb, type: 3}
   hookShoot: {fileID: 8300000, guid: 88699f601e27fe244b2c0b0b4240c5ac, type: 3}
   hookThrowEnemy: {fileID: 8300000, guid: 5490e89180fec6740b7a604da72dc853, type: 3}
-  textTyping: {fileID: 0}
+  textTyping: {fileID: 8300000, guid: 4eaaca373f0ceec44970de3f11833ae0, type: 3}
 --- !u!1 &887307775
 GameObject:
   m_ObjectHideFlags: 0

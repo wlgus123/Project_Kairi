@@ -11,8 +11,13 @@ public class AudioManager : MonoBehaviour
     public AudioSource sfxSource;
 
     [Header("Player SFX")]
+    public AudioClip playerDamaged;
     public AudioClip playerJump;
     public AudioClip playerWalk;
+
+    [Header("Enemy SFX")]
+    public AudioClip enemyAttack;
+    public AudioClip enemyShoot;
 
     [Header("Hook SFX")]
     public AudioClip hookAttach;
@@ -85,8 +90,13 @@ public class AudioManager : MonoBehaviour
     // 편의 함수
 
     // 플레이어
+    public void PlayDamagedSound(float volume = 1f) => PlaySFX(playerDamaged, volume);
     public void PlayJumpSound(float volume = 1f) => PlaySFX(playerJump, volume);
     public void PlayWalkSound(float volume = 1f) => PlaySFX(playerWalk, volume);
+
+    // 적
+    public void EnemyAttackSound(float volume = 1f) => PlaySFX(enemyAttack, volume);
+    public void EnemyShootSound(float volume = 1f) => PlaySFX(enemyShoot, volume);
 
     // 갈고리
     public void HookAttachSound(float volume = 1f) => PlaySFX(hookAttach, volume);
