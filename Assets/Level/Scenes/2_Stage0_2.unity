@@ -14500,6 +14500,7 @@ GameObject:
   - component: {fileID: 1025645484}
   - component: {fileID: 1025645483}
   - component: {fileID: 1025645485}
+  - component: {fileID: 1025645486}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -14544,6 +14545,7 @@ MonoBehaviour:
     maxHP: 0
     currentHP: 0
   escKey: {fileID: 1025645485}
+  sceneReloader: {fileID: 1025645486}
 --- !u!4 &1025645484
 Transform:
   m_ObjectHideFlags: 0
@@ -14572,6 +14574,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ESCKey
   targetCanvas: {fileID: 121158665}
+--- !u!114 &1025645486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1025645482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d049ff1d1737d7b48b9e9456241f1068, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneReloader
 --- !u!1 &1030478992
 GameObject:
   m_ObjectHideFlags: 0

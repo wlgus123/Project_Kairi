@@ -30,6 +30,9 @@ public class GameManager : MonoSingleton<GameManager> // ½Ì±ÛÅæ »ç¿ë
     [Header("¸Þ´º °ü·Ã")]
     public ESCKey escKey;
 
+    [Header("¾À °ü·Ã")]
+    public SceneReloader sceneReloader;
+
     protected new void Awake()
     {
 		if(managerInstance)

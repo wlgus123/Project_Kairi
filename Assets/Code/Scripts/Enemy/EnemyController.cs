@@ -45,34 +45,32 @@ public class EnemyController : MonoBehaviour
             }
         }
 
-        // 충돌 체크
-        hasCollided = true;
+        hasCollided = true;     // 충돌 체크
 
         // y값 보정 (바닥 뚫림 방지)
         if (isGrounded && rigid.linearVelocityY < 0f)
             rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
     }
 
-
-    void OnCollisionEnter2D(Collision2D other)
+    void OnCollisionEnter2D(Collision2D collision)
 	{
-        CheckGround(other);     // 바닥 체크
+        CheckGround(collision);     // 바닥 체크
 
         if (gameObject.CompareTag(tagName.enemy))
 		{
 			// 적과 닿았을 경우
-			if (other.gameObject.CompareTag(tagName.throwingEnemy))
+			if (collision.gameObject.CompareTag(tagName.throwingEnemy))
 			{
-				if (other.gameObject.TryGetComponent<Enemy>(out var target))
+				if (collision.gameObject.TryGetComponent<Enemy>(out var target))
 				{
 					target.TakeDamage(1);       // 닿은 적에게 데미지 주기
 					damageable.TakeDamage(1);   // 자기 자신도 데미지 받기
 				}
 			}
 			// 오브젝트와 닿았을 경우
-			else if (other.gameObject.CompareTag(tagName.throwingObj))
+			else if (collision.gameObject.CompareTag(tagName.throwingObj))
 			{
-				if (other.gameObject.TryGetComponent<Enemy>(out var target))
+				if (collision.gameObject.TryGetComponent<Enemy>(out var target))
 				{
 					target.TakeDamage(1);       // 닿은 적에게 데미지 주기
 				}
@@ -89,5 +87,4 @@ public class EnemyController : MonoBehaviour
         if (collision.gameObject.CompareTag(tagName.ground))
             isGrounded = false;
     }
-
 }

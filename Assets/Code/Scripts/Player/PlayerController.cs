@@ -2,9 +2,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using static UnityEngine.LowLevelPhysics2D.PhysicsShape;
 using playerState = EnumType.PlayerState;
 using tagName = Globals.TagName;
+using Unity.VisualScripting;
 
 public class PlayerController : MonoBehaviour, IDamageable
 {
@@ -161,7 +163,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
     }
 
-
     public void HandleFlip()    // 방향 플립
     {
         if (inputVec.x > 0) 
@@ -174,6 +175,9 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         GameManager.Instance.audioManager.PlayDamagedSound(1f);         // 데미지 사운드 재생
         GameManager.Instance.playerStatsRuntime.currentHP -= attack;    // 체력 감소
+
+        if (GameManager.Instance.playerStatsRuntime.currentHP <= 0)
+            GameManager.Instance.sceneReloader.Reload();                // 씬 리로드
 
         // 이미 실행 중이면 중단 (연속 피격 대응)
         if (damageCanvasCoroutine != null)
