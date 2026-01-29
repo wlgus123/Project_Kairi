@@ -41,8 +41,7 @@ public class ObjectController : MonoBehaviour
 
     public void CheckGround(Collision2D collision)
     {
-        // ¹Ù´Ú Ã¼Å©
-        foreach (var contact in collision.contacts)
+        foreach (var contact in collision.contacts)     // ¹Ù´Ú Ã¼Å©
         {
             if (contact.normal.y > 0.7f &&
                 contact.point.y < transform.position.y)

@@ -9,7 +9,7 @@ using tagName = Globals.TagName;    // 태그
 /// </summary>
 public class EnemyController : MonoBehaviour
 {
-	Enemy enemy;
+
     Rigidbody2D rigid;
     IDamageable damageable;
     public bool isGrounded;
@@ -18,12 +18,7 @@ public class EnemyController : MonoBehaviour
     void Awake()
 	{
         rigid = GetComponent<Rigidbody2D>();
-        enemy = GetComponent<Enemy>();
 		damageable = GetComponent<Enemy>();
-	}
-
-    void Start()
-    {
         isGrounded = true;
     }
 
@@ -34,8 +29,7 @@ public class EnemyController : MonoBehaviour
     }
     public void CheckGround(Collision2D collision)
     {
-        // 바닥 체크
-        foreach (var contact in collision.contacts)
+        foreach (var contact in collision.contacts)     // 바닥 체크
         {
             if (contact.normal.y > 0.7f &&
                 contact.point.y < transform.position.y)
@@ -44,11 +38,9 @@ public class EnemyController : MonoBehaviour
                 break;
             }
         }
-
         hasCollided = true;     // 충돌 체크
 
-        // y값 보정 (바닥 뚫림 방지)
-        if (isGrounded && rigid.linearVelocityY < 0f)
+        if (isGrounded && rigid.linearVelocityY < 0f)       // y값 보정 (바닥 뚫림 방지)
             rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
     }
 
@@ -58,9 +50,8 @@ public class EnemyController : MonoBehaviour
 
         if (gameObject.CompareTag(tagName.enemy))
 		{
-			// 적과 닿았을 경우
-			if (collision.gameObject.CompareTag(tagName.throwingEnemy))
-			{
+			if (collision.gameObject.CompareTag(tagName.throwingEnemy))     // 적과 닿았을 경우
+            {
 				if (collision.gameObject.TryGetComponent<Enemy>(out var target))
 				{
 					target.TakeDamage(1);       // 닿은 적에게 데미지 주기
@@ -71,12 +62,11 @@ public class EnemyController : MonoBehaviour
 			else if (collision.gameObject.CompareTag(tagName.throwingObj))
 			{
 				if (collision.gameObject.TryGetComponent<Enemy>(out var target))
-				{
-					target.TakeDamage(1);       // 닿은 적에게 데미지 주기
-				}
-			}
+                    target.TakeDamage(1);       // 닿은 적에게 데미지 주기
+            }
 		}
 	}
+
     void OnCollisionStay2D(Collision2D collision)
     {
         CheckGround(collision);     // 바닥 체크
