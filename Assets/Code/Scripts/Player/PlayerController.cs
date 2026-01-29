@@ -3,32 +3,15 @@ using UnityEngine.InputSystem;
 using System.Collections;
 using UnityEngine.UI;
 using static UnityEngine.LowLevelPhysics2D.PhysicsShape;
-
 using playerState = EnumType.PlayerState;
 using tagName = Globals.TagName;
 
 public class PlayerController : MonoBehaviour, IDamageable
 {
-	public bool isGrounded;
-	public bool hasCollided = false;
-	bool wasAttach;
-
-	public Vector2 inputVec;
-	Rigidbody2D rigid;
-	SpriteRenderer sprite;
-	GrapplingHook grappling;
-	PlayerInteraction interaction;  // 상호작용
-	Animator animator;              // 애니메이션
-    private Coroutine damageCanvasCoroutine;
-    private Coroutine damagedColorCoroutine;
-
-    public float maxTime;           // 땅에서 움직이지 않을 때 일정 시간 이후 Run에서 Idle
-	private float curTime;
-	public Canvas damagedCanvas;
-
-    public Slider slowGaugeSlider;	// 슬로우 게이지 UI
-    bool isSlow = false;	// 슬로우 상태
-
+    [Header("데미지 UI")]
+    public Canvas damagedCanvas;
+    [Header("슬로우 게이지 UI")]
+    public Slider slowGaugeSlider;
     [Header("슬로우 비율")]
     public float slowFactor;
 	[Header("슬로우 게이지 최대치")]
@@ -39,7 +22,27 @@ public class PlayerController : MonoBehaviour, IDamageable
     public float slowDecreaseRate;
     [Header("슬로우 게이지 회복 속도")]
     public float slowRecoverRate;
+    [Header("땅에서 움직이지 않을 때 일정 시간 이후 Run에서 Idle")]
+    public float maxTime;
+    private float curTime;
+    [Header("땅 체크")]
+    public bool isGrounded;
+    [Header("충돌 체크")]
+    public bool hasCollided = false;
+    [Header("슬로우 상태")]
+    public bool isSlow = false;
 
+    public Vector2 inputVec;
+    Rigidbody2D rigid;
+    SpriteRenderer sprite;
+    GrapplingHook grappling;
+    PlayerInteraction interaction;  // 상호작용
+    Animator animator;              // 애니메이션
+
+    private Coroutine damageCanvasCoroutine;
+    private Coroutine damagedColorCoroutine;
+    private bool wasAttach;
+ 
     void Awake()
 	{
 		rigid = GetComponent<Rigidbody2D>();
@@ -48,6 +51,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         interaction = GameManager.Instance.playerInteraction;
         grappling = GameManager.Instance.grapplingHook;
 	}
+
 	void Start()
 	{
 		isGrounded = true;
@@ -57,98 +61,18 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     void Update()
     {
-        if (TimelineController.isTimelinePlaying)
-        {
-            inputVec = Vector2.zero;
-            return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
-        }
-        // 슬로우 모드
-        if (Keyboard.current.leftShiftKey.wasPressedThisFrame)
-		{
-            if (!isSlow && slowGauge > 0f)
-                StartSlow();
-			else
-                StopSlow();
-        }
-        UpdateSlowGauge();	// 슬로우 게이지 업데이트
-        UpdateAnimation(); // 애니메이션
+        HandleTimelinePlaying();    // 타임라인 중 못 움직임
+        HandleSlowMode();           // 슬로우 모드
+        UpdateSlowGauge();	        // 슬로우 게이지 업데이트
+        UpdateAnimation();          // 애니메이션
     }
+
     void FixedUpdate()
 	{
 		if (interaction && interaction.GetIsAction()) return;
-
-		float speed = GameManager.Instance.playerStatsRuntime.speed;
-
-
-		// 그래플 시작 순간
-		if (!wasAttach && grappling.isAttach)
-		{
-			// 입력 방향으로 쌓인 속도만 제거
-			rigid.linearVelocity = new Vector2(0f, rigid.linearVelocity.y); // 수평 가속도 제거, 수직 가속도 유지
-		}
-
-		if (grappling.isAttach)
-		{
-			float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
-			rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
-
-			if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
-			{
-				rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
-			}
-		}
-		else
-		{
-			float x = inputVec.x * speed * Time.deltaTime;
-			transform.Translate(x, 0, 0);
-		}
-
-		// 방향 플립
-		if (inputVec.x > 0)
-		{
-			sprite.flipX = false;
-		}
-		else if (inputVec.x < 0)
-		{
-			sprite.flipX = true;
-		}
-
-		// 상태 저장 (맨 마지막!)
-		wasAttach = grappling.isAttach;
-	}
-
-	void OnJump()
-	{
-		if (TimelineController.isTimelinePlaying)
-		{
-			inputVec = Vector2.zero;
-			return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
-		}
-											   // 플레이어가 바닥이 아닐 경우
-			if (!isGrounded) return;
-
-		GameManager.Instance.audioManager.PlayJumpSound(1f);
-		rigid.AddForce(Vector2.up * GameManager.Instance.playerStatsRuntime.jumpForce, ForceMode2D.Impulse);
-
-		isGrounded = false;
-	}
-
-	void OnCollisionEnter2D(Collision2D collision)
-	{
-		CheckGround(collision);     // 바닥 체크
-	}
-
-	void OnCollisionStay2D(Collision2D collision)
-	{
-		CheckGround(collision);     // 바닥 체크
-	}
-
-	private void OnCollisionExit2D(Collision2D collision)
-	{
-		if (collision.gameObject.CompareTag(tagName.ground))
-			isGrounded = false;
-	}
-
+        HandleMove();   // 플레이어 이동
+        HandleFlip();   // 방향 플립
+    }
 
 	void OnMove(InputValue value)
 	{
@@ -160,12 +84,73 @@ public class PlayerController : MonoBehaviour, IDamageable
         inputVec = value.Get<Vector2>();
 	}
 
-    // 플레이어 데미지
-    public void TakeDamage(int attack)
+    void OnJump()
     {
-        GameManager.Instance.audioManager.PlayDamagedSound(1f);     // 데미지 사운드 재생
-        // 체력 감소
-        GameManager.Instance.playerStatsRuntime.currentHP -= attack;
+        if (TimelineController.isTimelinePlaying)
+        {
+            inputVec = Vector2.zero;
+            return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
+        }
+        if (!isGrounded) return;    // 플레이어가 바닥이 아닐 경우
+
+        GameManager.Instance.audioManager.PlayJumpSound(1f);
+        rigid.AddForce(Vector2.up * GameManager.Instance.playerStatsRuntime.jumpForce, ForceMode2D.Impulse);
+        isGrounded = false;
+    }
+
+    public void HandleTimelinePlaying()
+    {
+        if (TimelineController.isTimelinePlaying)
+        {
+            inputVec = Vector2.zero;
+            return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
+        }
+    }
+
+    public void HandleSlowMode()        // 슬로우 모드
+    {
+        if (Keyboard.current.leftShiftKey.wasPressedThisFrame)
+        {
+            if (!isSlow && slowGauge > 0f) StartSlow();
+            else StopSlow();
+        }
+    }
+
+    public void HandleMove()    // 플레이어 이동
+    {
+        float speed = GameManager.Instance.playerStatsRuntime.speed;
+
+        if (!wasAttach && grappling.isAttach)       // 그래플 시작 순간
+            rigid.linearVelocity = new Vector2(0f, rigid.linearVelocity.y); // 입력 방향으로 쌓인 속도만 수평 가속도 제거, 수직 가속도 유지
+
+        if (grappling.isAttach)
+        {
+            float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
+            rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
+
+            if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
+                rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
+        }
+        else
+        {
+            float x = inputVec.x * speed * Time.deltaTime;
+            transform.Translate(x, 0, 0);
+        }
+        wasAttach = grappling.isAttach;     // 상태 저장 (맨 마지막!)
+    }
+
+    public void HandleFlip()    // 방향 플립
+    {
+        if (inputVec.x > 0) 
+            sprite.flipX = false;
+        else if (inputVec.x < 0) 
+            sprite.flipX = true;
+    }
+
+    public void TakeDamage(int attack)      // 플레이어 데미지
+    {
+        GameManager.Instance.audioManager.PlayDamagedSound(1f);         // 데미지 사운드 재생
+        GameManager.Instance.playerStatsRuntime.currentHP -= attack;    // 체력 감소
 
         // 이미 실행 중이면 중단 (연속 피격 대응)
         if (damageCanvasCoroutine != null)
@@ -184,6 +169,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(1f);
         damagedCanvas.enabled = false;
     }
+
     IEnumerator PlayerDamagedColor()            // 데미지 플레이어 색 변경
     {
         sprite.color = Color.red;
@@ -191,10 +177,8 @@ public class PlayerController : MonoBehaviour, IDamageable
         sprite.color = Color.white;
     }
 
-    // 바닥 체크
-    public void CheckGround(Collision2D collision)
-	{
-		// 바닥 체크
+    public void CheckGround(Collision2D collision)      // 바닥 체크
+    {
 		foreach (var contact in collision.contacts)
 		{
 			if (contact.normal.y > 0.7f &&
@@ -203,29 +187,23 @@ public class PlayerController : MonoBehaviour, IDamageable
 				isGrounded = true;
 				break;
 			}
-		}
+		}	
+		hasCollided = true;     // 충돌 체크
 
-		// 충돌 체크
-		hasCollided = true;
-
-		// y값 보정 (바닥 뚫림 방지)
-		if (isGrounded && rigid.linearVelocityY < 0f)
-			rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
+        if (isGrounded && rigid.linearVelocityY < 0f)       // y값 보정 (바닥 뚫림 방지)
+            rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
 	}
 
-	// 플레이어 상태 변경
-	void SetPlayerState(playerState state)
-	{
+	void SetPlayerState(playerState state)      // 플레이어 상태 변경
+    {
 		animator.SetInteger(Globals.AnimationVarName.playerState, (int)state);
 	}
-
-	// 애니메이션 업데이트
-	void UpdateAnimation()
-	{
+	
+	void UpdateAnimation()      // 애니메이션 업데이트
+    {
         if (isGrounded)
 		{
-            // 플레이어가 가만히 있을 때
-            bool hasMoveInput = Mathf.Abs(inputVec.x) > 0.01f;
+            bool hasMoveInput = Mathf.Abs(inputVec.x) > 0.01f;      // 플레이어가 가만히 있을 때
 
             if (!hasMoveInput)
             {
@@ -241,12 +219,10 @@ public class PlayerController : MonoBehaviour, IDamageable
             }
         }
 		else
-		{
-			SetPlayerState(playerState.Idle);
-		}
-	}
-    // 슬로우 게이지 업데이트
-    void UpdateSlowGauge()
+            SetPlayerState(playerState.Idle);
+    }
+   
+    void UpdateSlowGauge()      // 슬로우 게이지 업데이트
     {
         if (isSlow)
         {
@@ -264,38 +240,40 @@ public class PlayerController : MonoBehaviour, IDamageable
             if (slowGauge > slowMaxGauge)
                 slowGauge = slowMaxGauge;
         }
-
         slowGaugeSlider.value = slowGauge / slowMaxGauge;
     }
-
-    // 슬로우 효과 종료
-    void StopSlow()
+ 
+    void StopSlow()     // 슬로우 효과 종료
     {
         if (!isSlow) return;
-
         isSlow = false;
-
-        // 시간 원래대로
-        Time.timeScale = 1f;
+        Time.timeScale = 1f;            // 시간 원래대로
         Time.fixedDeltaTime = 0.02f;
-
-        // 그래픽 복구
-        sprite.color = Color.white;
+        sprite.color = Color.white;     // 그래픽 복구
     }
-    // 슬로우 효과 시작
-    void StartSlow()
+  
+    void StartSlow()    // 슬로우 효과 시작
     {
         if (isSlow) return;
-
-        isSlow = true;
-
-        // 슬로우 효과 적용
+        isSlow = true;    
         sprite.color = Color.red;
-
-        Time.timeScale = slowFactor;
+        Time.timeScale = slowFactor;    
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
 
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        CheckGround(collision);     // 바닥 체크
+    }
 
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        CheckGround(collision);     // 바닥 체크
+    }
 
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(tagName.ground))
+            isGrounded = false;
+    }
 }
