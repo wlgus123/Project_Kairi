@@ -36,9 +36,7 @@ public class CameraShake : MonoBehaviour
             StartCoroutine(ShakeCoroutine(duration));
         }
         else
-        {
             GenerateImpulse();
-        }
     }
 
     private IEnumerator ShakeCoroutine(float duration)

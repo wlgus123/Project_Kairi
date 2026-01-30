@@ -13,8 +13,7 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void OnEnable()
     {
-        // 풀에서 다시 나올 때마다 초기화
-        state = EnumType.EnemyState.Idle;
+        state = EnumType.EnemyState.Idle;       // 풀에서 다시 나올 때마다 초기화
         currStat = new EnemyStatsRuntime(GameManager.Instance.enemyStats);
     }
 
@@ -24,8 +23,7 @@ public class Enemy : MonoBehaviour, IDamageable
 		currStat = new EnemyStatsRuntime(GameManager.Instance.enemyStats);  // 각 스탯 초기화
 	}
 
-    // 데미지 입히기
-    public void TakeDamage(int attack)
+    public void TakeDamage(int attack)      // 데미지 입히기
     {
         currStat.currentHP -= attack;
 
@@ -35,8 +33,10 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void Die()
     {
-        // 풀로 반환
-        ownerSpawner?.OnEnemyDead(this);
+        int randomNum = Random.Range(1, 4); // 1 ~ 3
+        Debug.Log($"{randomNum}번 죽음 효과");
+
+        ownerSpawner?.OnEnemyDead(this);        // 풀로 반환
         GameManager.Instance.poolManager.ReturnToPool(gameObject);
     }
 }

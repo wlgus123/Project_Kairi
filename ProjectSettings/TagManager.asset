@@ -15,6 +15,7 @@ TagManager:
   - ThrowingEnemy
   - GroundCheck
   - ThrowingObject
+  - Bullet
   layers:
   - Default
   - TransparentFX

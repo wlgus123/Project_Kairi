@@ -327,7 +327,7 @@ public class GrapplingHook : MonoBehaviour
 	{
 		if (hookingList.Contains(element) || isAttachElement) return;
 
-		EnemyAttack enemyAttack = element.GetComponent<EnemyAttack>();
+		LongRangeEnemy enemyAttack = element.GetComponent<LongRangeEnemy>();
 		if (enemyAttack != null)
 			enemyAttack.isGrabbed = true;
 
@@ -354,7 +354,7 @@ public class GrapplingHook : MonoBehaviour
 	public void ThrowElement(Transform element, Vector2 throwDir)   // 던지기
 	{
 		if (!hookingList.Contains(element)) return;
-		EnemyAttack enemyAttack = element.GetComponent<EnemyAttack>();
+		LongRangeEnemy enemyAttack = element.GetComponent<LongRangeEnemy>();
 		if (enemyAttack != null)
 		{
 			enemyAttack.isGrabbed = false;

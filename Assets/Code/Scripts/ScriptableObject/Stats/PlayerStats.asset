@@ -15,7 +15,7 @@ MonoBehaviour:
   speed: 8
   jumpForce: 10
   attack: 150
-  maxHP: 800
+  maxHP: 5
   hookSpeed: 100
   hookDistance: 10
   hookSwingForce: 35
