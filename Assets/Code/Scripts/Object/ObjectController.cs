@@ -9,6 +9,8 @@ public class ObjectController : MonoBehaviour
     public bool explosionObject;
     [Header("폭발 이펙트")]
     public GameObject explosionEffectPrefab;
+    [Header("폭발 범위")]
+    public float explosionRadiaus = 2f;
     [Header("부서지는 오브젝트")]
     public bool crackObject = false;
     [Header("최대 내구도")]
@@ -72,15 +74,20 @@ public class ObjectController : MonoBehaviour
         else                        // 파괴
         {
             if (explosionObject)
-            {
-                Vector2 thisObject = transform.position;
-                StartCoroutine(SpawnExplosionEffect(thisObject));
-                Destroy(gameObject);
-            }   
+                Explode();
             else
                 Destroy(gameObject);
         }
     }
+    private void OnDrawGizmosSelected()
+    {
+        if (explosionObject)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, explosionRadiaus); // 반경 2
+        }
+    }
+
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (crackObject && collision.CompareTag(tagName.bullet))
@@ -112,13 +119,7 @@ public class ObjectController : MonoBehaviour
         if (explosionObject && collision.gameObject.CompareTag(tagName.enemy))
         {
             if (collision.gameObject.TryGetComponent<Enemy>(out var target))
-            {
-                target.TakeDamage(1);       // 닿은 적에게 데미지 주기
-                Vector2 hitPoint = collision.contacts[0].point;
-                StartCoroutine(SpawnExplosionEffect(hitPoint));
-
-                Destroy(gameObject); // 투척 오브젝트 제거
-            }
+                Explode();
         }
 
         if (crackObject && collision.gameObject.CompareTag(tagName.throwingObj) || collision.gameObject.CompareTag(tagName.throwingEnemy))
@@ -127,12 +128,29 @@ public class ObjectController : MonoBehaviour
             UpdateColor();
         }
     }
+
+    public void Explode()
+    {
+        GameManager.Instance.audioManager.ObjectExplosionSound(1f);
+        GameManager.Instance.cameraShake.ShakeForSeconds(1f);
+        Vector2 explosionPos = transform.position;
+        Collider2D[] hits = Physics2D.OverlapCircleAll(explosionPos, explosionRadiaus);
+
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag(tagName.enemy))
+            {
+                if (hit.TryGetComponent<Enemy>(out var target))
+                    target.TakeDamage(1);
+            }
+        }
+        StartCoroutine(SpawnExplosionEffect(explosionPos));
+        Destroy(gameObject);
+    }
     IEnumerator SpawnExplosionEffect(Vector2 position)
     {
         GameObject effect = Instantiate(explosionEffectPrefab, position, Quaternion.identity);
-
         yield return new WaitForSeconds(1.07f);
-
         Destroy(effect);
     }
 

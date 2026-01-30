@@ -19,6 +19,9 @@ public class AudioManager : MonoBehaviour
     public AudioClip enemyAttack;
     public AudioClip enemyShoot;
 
+    [Header("Enemy SFX")]
+    public AudioClip objectExplosion;
+
     [Header("Hook SFX")]
     public AudioClip hookAttach;
     public AudioClip hookDraft;
@@ -97,6 +100,9 @@ public class AudioManager : MonoBehaviour
     // 적
     public void EnemyAttackSound(float volume = 1f) => PlaySFX(enemyAttack, volume);
     public void EnemyShootSound(float volume = 1f) => PlaySFX(enemyShoot, volume);
+
+    // 오브젝트
+    public void ObjectExplosionSound(float volume = 1f) => PlaySFX(objectExplosion, volume);
 
     // 갈고리
     public void HookAttachSound(float volume = 1f) => PlaySFX(hookAttach, volume);
