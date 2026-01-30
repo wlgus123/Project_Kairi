@@ -12,11 +12,13 @@ using tagName = Globals.TagName;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     [Header("Glitch Global Volume 오브젝트")]
-    public Volume glitchGlobalVolume;
+    public GameObject glitchGlobalVolume;
     [Header("TV Global Volume 오브젝트")]
-    public Volume tvGlobalVolume;
+    public GameObject tvGlobalVolume;
     [Header("데미지 UI")]
-    public Canvas damagedCanvas;
+    public GameObject damagedCanvas;
+    [Header("검은 화면 UI")]
+    public Image blackCanvas;
     [Header("슬로우 게이지 UI")]
     public Slider slowGaugeSlider;
     [Header("슬로우 비율")]
@@ -67,9 +69,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 	void Start()
 	{
 		isGrounded = true;
-        damagedCanvas.enabled = false;
-        glitchGlobalVolume.enabled = false;
-        tvGlobalVolume.enabled = false;
         SetPlayerState(playerState.Idle);
 	}
 
@@ -206,8 +205,11 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         if (glitchGlobalVolume != null & tvGlobalVolume)
         {
-            glitchGlobalVolume.enabled = true;
-            tvGlobalVolume.enabled = true;
+            glitchGlobalVolume.SetActive(true);
+            tvGlobalVolume.SetActive(true);
+            yield return new WaitForSeconds(0.5f);
+            blackCanvas.gameObject.SetActive(true);
+            GameManager.Instance.sceneReloader.SetAlpha(1f);
             yield return new WaitForSeconds(0.5f);
             Destroy(glitchGlobalVolume.gameObject);
             Destroy(tvGlobalVolume.gameObject);
@@ -217,9 +219,9 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     IEnumerator ShowDamagedCanvas()             // 데미지 UI 코루틴
     {
-        damagedCanvas.enabled = true;
+        damagedCanvas.SetActive(true);
         yield return new WaitForSeconds(1f);
-        damagedCanvas.enabled = false;
+        damagedCanvas.SetActive(false);
     }
 
     IEnumerator PlayerDamagedColor()            // 데미지 플레이어 색 변경
