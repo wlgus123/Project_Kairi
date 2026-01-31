@@ -331,6 +331,10 @@ public class GrapplingHook : MonoBehaviour
 		if (enemyAttack != null)
 			enemyAttack.isGrabbed = true;
 
+		DroneEnemy droneEnemy = element.GetComponent<DroneEnemy>();
+		if (droneEnemy != null)
+			droneEnemy.isGrabbed = true;
+
 		EnemyController enemyController = element.GetComponent<EnemyController>();
 		if (enemyController != null)
 			enemyController.isGrounded = false;
@@ -354,13 +358,19 @@ public class GrapplingHook : MonoBehaviour
 	public void ThrowElement(Transform element, Vector2 throwDir)   // 던지기
 	{
 		if (!hookingList.Contains(element)) return;
-		LongRangeEnemy enemyAttack = element.GetComponent<LongRangeEnemy>();
-		if (enemyAttack != null)
+		LongRangeEnemy longRangeEnemy = element.GetComponent<LongRangeEnemy>();
+		if (longRangeEnemy != null)
 		{
-			enemyAttack.isGrabbed = false;
-			enemyAttack.ResetAttackState();
+			longRangeEnemy.isGrabbed = false;
+			longRangeEnemy.ResetAttackState();
 		}
 
+		DroneEnemy droneEnemy = element.GetComponent<DroneEnemy>();
+		if (droneEnemy != null)
+		{
+			droneEnemy.isGrabbed = false;
+			droneEnemy.ResetAttackState();
+        }
 		GameManager.Instance.audioManager.HookThrowEnemySound(1f);  // 적 던지는 효과음
 		hookingList.Remove(element);
 		element.SetParent(null);    // 부모 해제
@@ -403,7 +413,6 @@ public class GrapplingHook : MonoBehaviour
 			hookingList[i].localPosition = offset; // 부모 transform 기준 localPosition
 		}
 	}
-
 	public void disableHook()   // 훅 & 줄 숨기기
 	{
 		hook.gameObject.SetActive(false);
