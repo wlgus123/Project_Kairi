@@ -13,12 +13,8 @@ public class GrapplingHook : MonoBehaviour
 	public Camera mainCam;
 	[Header("Global Volume 오브젝트")]
 	public Volume globalVolume;
-	[Header("Line 오브젝트 LineRenderer")]
-	public LineRenderer line;
 	[Header("visualizerLine 오브젝트 LineRenderer")]
 	public LineRendererAtoB visualizerLine;
-	[Header("Hook 오브젝트 Transform")]
-	public Transform hook;
 	[Header("훅 활성화 상태 여부")]
 	public bool isHookActive;
 	[Header("그래플링 훅 길이가 최대인지")]
@@ -75,16 +71,7 @@ public class GrapplingHook : MonoBehaviour
 
 	void Start()
 	{
-		// 라인을 그리는 포지션을 두개로 설정하고 (PositionCount)
-		// 한 점은 Player의 포지션, 한 점은 Hook의 포지션으로 설정 (SetPosition)
-		line.positionCount = 2;
-		line.endWidth = line.startWidth = 0.05f;
-		line.SetPosition(0, transform.position);
-		line.SetPosition(1, hook.position);
-		line.useWorldSpace = true;
 		isAttach = false;
-		hook.gameObject.SetActive(false);
-		hookJoint = hook.GetComponent<DistanceJoint2D>();
 		distance = GameManager.Instance.playerStats.hookDistance;
 
 		if (globalVolume == null)
@@ -100,9 +87,8 @@ public class GrapplingHook : MonoBehaviour
 	{
 		if (TimelineController.isTimelinePlaying) return;   // 컷씬 재생 중일 때는 갈고리 불가
 
-		UpdateLine();
 		HandleHookShoot();
-		HandleHookMove();
+		//HandleHookMove();
 		HandleAttachState();
 		HandleSwingGauge();
 		HandleThrow();
@@ -114,144 +100,138 @@ public class GrapplingHook : MonoBehaviour
 		MoveElementPos();
 	}
 
-	void UpdateLine() // 라인 업데이트
-	{
-		line.SetPosition(0, transform.position);
-		line.SetPosition(1, hook.position);
-	}
 	void HandleHookShoot() // 훅 발사 입력처리
 	{
 		if (Mouse.current.leftButton.wasPressedThisFrame && !isHookActive && !isAttach)
 		{
 			GameManager.Instance.cameraShake.ShakeForSeconds(0.1f); // 카메라 흔들기
 			GameManager.Instance.audioManager.HookShootSound(0.7f); // 갈고리 발사 효과음
-			hook.position = transform.position;
 			Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 			mouseWorldPos.z = 0f;
 
 			mousedir = mouseWorldPos - transform.position;
 			isHookActive = true;
-			hook.gameObject.SetActive(true);
-			line.enabled = true;
 		}
 	}
 
 	void HandleHookMove() // 훅 이동 / 복귀 처리
 	{
-		if (!isHookActive || isAttach) return; // 훅이 발사된 상태이고, 아직 최대 사거리에 도달하지 않았을 때
+		//if (!isHookActive || isAttach) return; // 훅이 발사된 상태이고, 아직 최대 사거리에 도달하지 않았을 때
 
-		if (!isLineMax)
-		{
-			// 마우스 방향으로 훅을 전진시킴
-			hook.Translate(mousedir.normalized * Time.deltaTime * GameManager.Instance.playerStatsRuntime.hookSpeed);
-			// 플레이어와 훅 사이의 거리가 최대 사거리보다 커지면
-			if (Vector2.Distance(transform.position, hook.position) > GameManager.Instance.playerStatsRuntime.hookDistance)
-				isLineMax = true;   // 최대 사거리 도달 상태로 전환
-		}
-		else    // 훅이 최대 사거리에 도달한 이후
-		{
-			// 훅을 플레이어 위치로 부드럽게 되돌림
-			hook.position = Vector2.MoveTowards(hook.position, transform.position, Time.deltaTime * GameManager.Instance.playerStatsRuntime.hookSpeed);
-			if (Vector2.Distance(transform.position, hook.position) < 0.1f)     // 훅이 거의 플레이어 위치까지 돌아왔을 경우
-			{
-				// 훅 상태 초기화
-				isHookActive = false;
-				isLineMax = false;
-				hook.gameObject.SetActive(false);
-			}
-		}
+		//if (!isLineMax)
+		//{
+		//	// 마우스 방향으로 훅을 전진시킴
+		//	hook.Translate(mousedir.normalized * Time.deltaTime * GameManager.Instance.playerStatsRuntime.hookSpeed);
+		//	// 플레이어와 훅 사이의 거리가 최대 사거리보다 커지면
+		//	if (Vector2.Distance(transform.position, hook.position) > GameManager.Instance.playerStatsRuntime.hookDistance)
+		//		isLineMax = true;   // 최대 사거리 도달 상태로 전환
+		//}
+		//else    // 훅이 최대 사거리에 도달한 이후
+		//{
+		//	// 훅을 플레이어 위치로 부드럽게 되돌림
+		//	hook.position = Vector2.MoveTowards(hook.position, transform.position, Time.deltaTime * GameManager.Instance.playerStatsRuntime.hookSpeed);
+		//	if (Vector2.Distance(transform.position, hook.position) < 0.1f)     // 훅이 거의 플레이어 위치까지 돌아왔을 경우
+		//	{
+		//		// 훅 상태 초기화
+		//		isHookActive = false;
+		//		isLineMax = false;
+		//		hook.gameObject.SetActive(false);
+		//	}
+		//}
 	}
 
 	void HandleAttachState() // 그래플링 붙어 있을 때 처리
 	{
 		if (!isAttach) return;
 
+		// 효과음
 		if (!hasPlayedAttachSound)      // 갈고리 or 적에 처음 붙었을 때
 		{
 			GameManager.Instance.audioManager.HookAttachSound(1f);
 			hasPlayedAttachSound = true;
 		}
 
+		// 카메라 효과
 		if (!hasShakedOnAttach)
 		{
 			GameManager.Instance.cameraShake.ShakeForSeconds(0.1f);
 			hasShakedOnAttach = true;
 		}
-		HandleDetachInput();
-		HandleRopeDraft();
+		//HandleDetachInput();	// 해제 처리
+		//HandleRopeDraft();		// 줄 당기기
 	}
 
 	void HandleDetachInput() // 붙은 상태에서 해제 처리
 	{
-		if (!Mouse.current.leftButton.wasReleasedThisFrame) return;     // 마우스를 땠을 때만 해제
+		//if (!Mouse.current.leftButton.wasReleasedThisFrame) return;     // 마우스를 땠을 때만 해제
 
-		isAttach = false;
-		isHookActive = false;
-		isLineMax = false;
-		hasShakedOnAttach = false;
-		hasPlayedAttachSound = false;
+		//isAttach = false;
+		//isHookActive = false;
+		//isLineMax = false;
+		//hasShakedOnAttach = false;
+		//hasPlayedAttachSound = false;
 
-		hook.GetComponent<Hooking>().joint2D.enabled = false;
-		hook.gameObject.SetActive(false);
+		//hook.GetComponent<Hooking>().joint2D.enabled = false;
+		//hook.gameObject.SetActive(false);
 
-		if (slowCoroutine != null)
-			StopCoroutine(slowCoroutine);
+		//if (slowCoroutine != null)
+		//	StopCoroutine(slowCoroutine);
 
-		slowCoroutine = StartCoroutine(SlowRoutine());
-		Boost(GetGaugePercent());
+		//slowCoroutine = StartCoroutine(SlowRoutine());
+		//Boost(GetGaugePercent());
 	}
 
 	void HandleRopeDraft() // 줄 당기기 처리
 	{
-		if (Keyboard.current.spaceKey.isPressed)    // 스페이스 줄 당기기
-		{
-			if (hookJoint != null && hookJoint.enabled)
-			{
-				hookJoint.distance = Mathf.Max(0.5f, hookJoint.distance - 0.1f);
+		//if (Keyboard.current.spaceKey.isPressed)    // 스페이스 줄 당기기
+		//{
+		//	if (hookJoint != null && hookJoint.enabled)
+		//	{
+		//		hookJoint.distance = Mathf.Max(0.5f, hookJoint.distance - 0.1f);
 
-				if (!isPlayedDraftSound)
-				{
-					GameManager.Instance.audioManager.HookDraftSound(1f);
-					isPlayedDraftSound = true;
-				}
-			}
-		}
-		if (Keyboard.current.spaceKey.wasReleasedThisFrame)
-		{
-			GameManager.Instance.audioManager.StopSFX();
-			isPlayedDraftSound = false;
-		}
+		//		if (!isPlayedDraftSound)
+		//		{
+		//			GameManager.Instance.audioManager.HookDraftSound(1f);
+		//			isPlayedDraftSound = true;
+		//		}
+		//	}
+		//}
+		//if (Keyboard.current.spaceKey.wasReleasedThisFrame)
+		//{
+		//	GameManager.Instance.audioManager.StopSFX();
+		//	isPlayedDraftSound = false;
+		//}
 	}
 
-	void HandleSwingGauge() // 회전 게이지 처리 분리
+	void HandleSwingGauge() // 회전 게이지 처리
 	{
-		if (!isAttach)
-		{
-			ResetSwingGauge();
-			return;
-		}
+		//if (!isAttach)
+		//{
+		//	ResetSwingGauge();
+		//	return;
+		//}
 
-		swingGauge.gameObject.SetActive(true);  // 게이지 UI 활성화 
+		//swingGauge.gameObject.SetActive(true);  // 게이지 UI 활성화 
 
-		bool noInput = GameManager.Instance.playerController.inputVec == Vector2.zero;
-		Vector2 hookPos = hook.position;        // 갈고리(회전 중심) 좌표
-		Vector2 playerPos = transform.position; // 플레이어 좌표
-		Vector2 dir = (playerPos - hookPos).normalized; // 갈고리 -> 플레이어 방향 벡터
-		float angleNow = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // 현재 각도(0~360°)
+		//bool noInput = GameManager.Instance.playerController.inputVec == Vector2.zero;
+		//Vector2 hookPos = hook.position;        // 갈고리(회전 중심) 좌표
+		//Vector2 playerPos = transform.position; // 플레이어 좌표
+		//Vector2 dir = (playerPos - hookPos).normalized; // 갈고리 -> 플레이어 방향 벡터
+		//float angleNow = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg; // 현재 각도(0~360°)
 
-		// 첫 프레임에서는 이전 각도가 없으므로 초기화
-		if (!angleInitialized)
-		{
-			previousAngle = angleNow;
-			angleInitialized = true;
-		}
+		//// 첫 프레임에서는 이전 각도가 없으므로 초기화
+		//if (!angleInitialized)
+		//{
+		//	previousAngle = angleNow;
+		//	angleInitialized = true;
+		//}
 
-		// 프레임 간 각도 변화 계산 (360° 넘어가도 정확하게 처리)
-		float delta = Mathf.DeltaAngle(previousAngle, angleNow);
-		previousAngle = angleNow; // 현재 각도를 다음 프레임을 위해 저장
-		ProcessSwingDelta(delta, noInput);
-		accumulatedAngle = Mathf.Clamp(accumulatedAngle, 0, maxAngle);
-		swingGauge.value = accumulatedAngle / maxAngle;
+		//// 프레임 간 각도 변화 계산 (360° 넘어가도 정확하게 처리)
+		//float delta = Mathf.DeltaAngle(previousAngle, angleNow);
+		//previousAngle = angleNow; // 현재 각도를 다음 프레임을 위해 저장
+		//ProcessSwingDelta(delta, noInput);
+		//accumulatedAngle = Mathf.Clamp(accumulatedAngle, 0, maxAngle);
+		//swingGauge.value = accumulatedAngle / maxAngle;
 	}
 
 	void ProcessSwingDelta(float delta, bool noInput)
@@ -312,7 +292,6 @@ public class GrapplingHook : MonoBehaviour
 			Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 			Vector2 dir = mouseWorld - (Vector2)transform.position;
 			ThrowElement(hookingList[0], dir);
-			line.enabled = true;
 			resetHook();                        // 훅 상태 초기화
 		}
 	}
@@ -415,8 +394,6 @@ public class GrapplingHook : MonoBehaviour
 	}
 	public void disableHook()   // 훅 & 줄 숨기기
 	{
-		hook.gameObject.SetActive(false);
-		line.enabled = false;
 		isAttach = false;
 		isHookActive = false;
 		isLineMax = false;
@@ -426,8 +403,6 @@ public class GrapplingHook : MonoBehaviour
 	{
 		isHookActive = false;
 		isLineMax = false;
-		hook.GetComponent<Hooking>().joint2D.enabled = false;
-		hook.gameObject.SetActive(false);
 	}
 
 	IEnumerator SlowRoutine()   // 슬로우 효과 코루틴

@@ -1,54 +1,182 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using tagName = Globals.TagName;
+using UnityEngine.InputSystem;
+using static Globals;
+
+using hookVal = Globals.HookValue;
 
 public class Hooking : MonoBehaviour
 {
-    [Header("°¥°í¸® »çÀÌ °Å¸®°¡ ÀÌÇÏÀÌ¸é º¸Á¤")]
-    public float minDistanceLimit;
-    [Header("°¡±î¿ï ¶§ °íÁ¤µÇ´Â °Å¸®")]
-    public float minClampDistance;
-    [Header("ÇÃ·¹ÀÌ¾î¿Í °¥°í¸®¸¦ ¹°¸®ÀûÀ¸·Î ¿¬°áÇÏ´Â DistanceJoint2D")]
-    public DistanceJoint2D joint2D;
-    [Header("ÈÅ ÃÖ¼Ò ±æÀÌ")]
-    public float minHookLength = 2.0f;
-    GrapplingHook grappling;
+	[Header("í›…")]
+	public Vector2 destiny;
+	public float speed = 1f;            // í›… ë°œì‚¬ ì†ë„ (TODO: ìŠ¤í¬ë¦½í„°ë¸” ì˜¤ë¸Œì íŠ¸ì— ìˆëŠ” speedë¡œ ì‚¬ìš©í•˜ê¸°)
 
-    void Start()
-    {
-        joint2D = GetComponent<DistanceJoint2D>();     // ÇöÀç ¿ÀºêÁ§Æ®¿¡ ºÙ¾îÀÖ´Â DistanceJoint2D °¡Á®¿À±â
-        grappling = GameManager.Instance.grapplingHook;
-    }
+	[Header("ì¤‘ë ¥")]
+	public Vector2 gravityForce = new Vector2(0f, -2f);     // ë¡œí”„ ì¤‘ë ¥ê°’
+	public float dampingFactor = 0.99f;     // ì œë™ ê³„ìˆ˜ (ê³¼ë„í•œ í”ë“¤ë¦¼ ì œì–´ìš©)
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag(tagName.ground)) // °¥°í¸®°¡ Æ¯Á¤ ÅÂ±×¿¡ ´ê¾ÒÀ» ¶§
-        {
-            joint2D.enabled = true; // ÁÙ È°¼ºÈ­
+	[Header("ì œì•½ ì¡°ê±´")]
+	public int constraintRuns = 50;    // ì‹¤í–‰ íšŸìˆ˜
 
-            // ÇÃ·¹ÀÌ¾î°¡ °¥°í¸®¸¦ °Ç À§Ä¡°¡ Joint DIstanceÀÇ Distance
-            float dist = Vector2.Distance(grappling.transform.position, transform.position);    // ÇÃ·¹ÀÌ¾î¿Í °¥°í¸® »çÀÌ °Å¸® °è»ê
-            joint2D.distance = dist;                                                    // °è»êµÈ °Å¸®¸¦ JointÀÇ °Å¸®·Î ¼³Á¤
+	[Header("ë…¸ë“œ í”„ë¦¬í©")] public GameObject nodePrefab;   // ë…¸ë“œ í”„ë¦¬í©
 
-            if (GameManager.Instance.playerController.isGrounded == true)               // ÇÃ·¹ÀÌ¾î°¡ ¶¥¿¡ ºÙ¾î ÀÖÀ» °æ¿ì
-                joint2D.distance -= joint2D.distance * 0.2f;                            // ÁÙÀÌ ³Ê¹« ÆØÆØÇØÁöÁö ¾Êµµ·Ï »ìÂ¦ ÁÙ¿©ÁÜ
+	[HideInInspector] public GameObject player;             // í”Œë ˆì´ì–´ ì˜¤ë¸Œì íŠ¸
+	[HideInInspector] public GameObject lastNode;           // ë§ˆì§€ë§‰ì— ìƒì„±í•œ ë…¸ë“œ
+	[HideInInspector] public LineRenderer line;
+	[HideInInspector] public int segmentCnt;    // ì  ê°¯ìˆ˜
+	[HideInInspector] public float lineLen;    // ì¤„ ê¸¸ì´
+	[HideInInspector] public List<GameObject> nodeList = new List<GameObject>();  // ë…¸ë“œ ë¦¬ìŠ¤íŠ¸
 
-            if (joint2D.distance >= 9)    // ÁÙ ±æÀÌ°¡ ³Ê¹« ±æ °æ¿ì Á¦ÇÑ
-                joint2D.distance = 7;
+	private List<HookSegment> hookSegments = new List<HookSegment>();
+	private Vector3 ropeStartPoint;     // ì¤„ ì‹œì‘ì 
 
-            if (!GameManager.Instance.playerController.isGrounded && joint2D.distance <= minDistanceLimit) // ÂªÀ» ¶§ ´Ã¸®±â
-                joint2D.distance = minClampDistance;
+	private void Awake()
+	{
+		line = GetComponent<LineRenderer>();
+	}
 
-            grappling.ApplyHookImpulse(transform.position);    // Èû ÁÖ±â
-            grappling.isAttach = true;                         // ÈÅÀÌ ¿¬°áµÈ »óÅÂ
-            grappling.isHookActive = false;                    // ÈÅ ¹ß»ç »óÅÂ Á¾·á
-            grappling.isLineMax = false;                       // ÁÙ ÃÖ´ë ±æÀÌ »óÅÂ ÇØÁ¦
+	private void Start()
+	{
+		segmentCnt = (int)(lineLen / hookVal.segmentLen);
+		line.positionCount = segmentCnt;
 
-            // °¥°í¸®°¡ º®¿¡ ¹ÚÈ÷´Â ¼ø°£ º®°ú ÇÃ·¹ÀÌ¾î °Å¸®°¡ ³Ê¹« °¡±õ´Ù¸é ±æÀÌ º¸Á¤
-            if (joint2D.distance < minHookLength)
-                joint2D.distance = minHookLength;
-        }
-        // ¸ó½ºÅÍ/¿ÀºêÁ§Æ® Àâ±â
-        if (collision.CompareTag(tagName.enemy) || collision.CompareTag(tagName.throwingEnemy) || collision.CompareTag(tagName.obj))
-            GameManager.Instance.grapplingHook.AttachElement(collision.transform);
-    }
+		player = GameObject.FindGameObjectWithTag(TagName.player);    // í”Œë ˆì´ì–´ íƒœê·¸ë¡œ ì •ë³´ ë¶ˆëŸ¬ì˜¤ê¸°
+		lastNode = transform.gameObject;    // ë§ˆì§€ë§‰ ë…¸ë“œë¥¼ ìê¸° ìì‹ ìœ¼ë¡œ ì„¤ì •
+
+		ropeStartPoint = player.transform.position;     // ë¡œí”„ ì‹œì‘ì  ì„¤ì •(í”Œë ˆì´ì–´ ìœ„ì¹˜)
+
+		lastNode = transform.gameObject;    // ë§ˆì§€ë§‰ íƒœê·¸ë¥¼ ìê¸° ìì‹ ìœ¼ë¡œ ì„¤ì •
+		nodeList.Add(transform.gameObject);
+
+		for (int i = 0; i < segmentCnt; i++)
+		{
+			hookSegments.Add(new HookSegment(ropeStartPoint));
+			ropeStartPoint.y -= hookVal.segmentLen;
+		}
+
+
+	}
+
+	private void Update()
+	{
+		transform.position = Vector2.MoveTowards(transform.position, destiny, speed);
+	
+		RenderLine();
+	}
+
+	private void FixedUpdate()
+	{
+		// ì¤„ ìœ„ì¹˜ ì—…ë°ì´íŠ¸
+		Simulate();
+
+		for (int i = 0; i < constraintRuns; i++)
+			ApplyContraints();
+
+		// í”Œë ˆì´ì–´ ìœ„ì¹˜ ë³´ì •
+		Vector2 toPlayer = (Vector2)player.transform.position - destiny;
+		float ropeLength = lineLen;
+
+		if (toPlayer.magnitude > ropeLength)
+		{
+			// í”Œë ˆì´ì–´ ìœ„ì¹˜ë¥¼ ë¡œí”„ ê¸¸ì´ ì•ˆìœ¼ë¡œ ê°•ì œ ë³´ì •
+			Vector2 clampedPos = destiny + toPlayer.normalized * ropeLength;
+			player.transform.position = clampedPos;
+
+			// ë¡œí”„ ë°©í–¥ ì†ë„ ì œê±° (ëŠ˜ì–´ì§ ë°©ì§€ í•µì‹¬)
+			Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+			rb.linearVelocity = Vector3.ProjectOnPlane(rb.linearVelocity, toPlayer.normalized);
+		}
+	}
+
+	// ì„  ê·¸ë¦¬ê¸°
+	void RenderLine()
+	{
+		// ì„¸ê·¸ë¨¼íŠ¸ ê°¯ìˆ˜ì™€ ì„¸ê·¸ë¨¼íŠ¸ ë¦¬ìŠ¤íŠ¸ ê°¯ìˆ˜ê°€ ë‹¤ë¥¼ ê²½ìš° ë¦¬ìŠ¤íŠ¸ ì´ˆê¸°í™”
+		if (segmentCnt != hookSegments.Count)
+		{
+			hookSegments.Clear();
+
+			for (int i = 0; i < segmentCnt; i++)
+			{
+				hookSegments.Add(new HookSegment(ropeStartPoint));
+				ropeStartPoint.y -= hookVal.segmentLen;
+			}
+		}
+
+		Vector3[] ropePos = new Vector3[segmentCnt];
+		for (int i = 0; i < hookSegments.Count; i++)
+		{
+			ropePos[i] = hookSegments[i].CurrPos;
+		}
+
+		line.SetPositions(ropePos);
+	}
+
+	// ì¤„ êµ¬ì²´í™”
+	private void Simulate()
+	{
+		for (int i = 1; i < hookSegments.Count; i++)
+		{
+			HookSegment segment = hookSegments[i];
+			Vector2 velocity = (segment.CurrPos - segment.OldPos) * dampingFactor;
+
+			segment.OldPos = segment.CurrPos;
+			segment.CurrPos += velocity;
+			segment.CurrPos += gravityForce * Time.fixedDeltaTime * Time.fixedDeltaTime;
+			hookSegments[i] = segment;  // í˜„ì¬ ì„¸ê·¸ë¨¼íŠ¸ ë¦¬ìŠ¤íŠ¸ì— ì ìš©í•˜ê¸°
+		}
+	}
+
+	// ì„¸ê·¸ë¨¼íŠ¸ ìœ„ì¹˜ ì¡°ì • (Verlet ì ì‚°ë²• ì‚¬ìš©)
+	private void ApplyContraints()
+	{
+		HookSegment firstSegment = hookSegments[0];         // ì²« ë²ˆì§¸ ì„¸ê·¸ë¨¼íŠ¸
+		HookSegment lastSegment = hookSegments[hookSegments.Count - 1]; // ë§ˆì§€ë§‰ ì„¸ê·¸ë¨¼íŠ¸
+		firstSegment.CurrPos = player.transform.position;   // ì²« ë²ˆì§¸ ì„¸ê·¸ë¨¼íŠ¸ëŠ” í”Œë ˆì´ì–´ ìœ„ì¹˜
+		lastSegment.CurrPos = destiny;      // ë§ˆì§€ë§‰ ì„¸ê·¸ë¨¼íŠ¸ëŠ” ë¼ì¸ìœ¼ë¡œ ì¶©ëŒëœ ìœ„ì¹˜
+		hookSegments[0] = firstSegment;     // í˜„ì¬ ì„¸ê·¸ë¨¼íŠ¸ ë¦¬ìŠ¤íŠ¸ì—ë„ ë°˜ì˜
+		hookSegments[hookSegments.Count - 1] = lastSegment;
+
+		for (int i = 0; i < segmentCnt - 1; i++)
+		{
+			HookSegment currSeg = hookSegments[i];
+			HookSegment nextSeg = hookSegments[i + 1];
+
+			float dist = (currSeg.CurrPos - nextSeg.CurrPos).magnitude;   // ë‘ ì„¸ê·¸ë¨¼íŠ¸ ì‚¬ì´ ê±°ë¦¬ ê³„ì‚°
+			float difference = (dist - hookVal.segmentLen);  // ì„¸ê·¸ë¨¼íŠ¸ ê¸¸ì´ ì°¨ì´ ê³„ì‚°
+
+			Vector2 changeDir = (currSeg.CurrPos - nextSeg.CurrPos).normalized;     // ë³€ê²½í•  ì„¸ê·¸ë¨¼íŠ¸ ë°©í–¥ ì •ê·œí™”
+			Vector2 changeVector = changeDir * difference;                          // ë³€ê²½í•  ì„¸ê·¸ë¨¼íŠ¸ ìœ„ì¹˜ ë²¡í„°ê°’ ê³„ì‚°
+
+			if (i == 0)    // ì²« ë²ˆì§¸ ì„¸ê·¸ë¨¼íŠ¸ì¼ ê²½ìš° ì „ì²´ ë³´ì •ê°’ì„ ë‹¤ìŒ ì„¸ê·¸ë¨¼íŠ¸ì— ì ìš©
+			{
+				nextSeg.CurrPos += changeVector;
+			}
+			else if (i == segmentCnt - 2)   // ë§ˆì§€ë§‰ ì„¸ê·¸ë¨¼íŠ¸ì¼ ê²½ìš°
+			{
+				currSeg.CurrPos -= changeVector;
+			}
+			else  // ì²« ë²ˆì§¸ ì„¸ê·¸ë¨¼íŠ¸ê°€ ì•„ë‹ ê²½ìš° í•´ë‹¹ ì„¸ê·¸ë¨¼íŠ¸ì™€ ë‹¤ìŒ ì„¸ê·¸ë¨¼íŠ¸ì— ìˆ˜ì •ê°’ì„ ë¶„ë°°
+			{
+				currSeg.CurrPos -= (changeVector * 0.5f);
+				nextSeg.CurrPos += (changeVector * 0.5f);
+			}
+			hookSegments[i] = currSeg;  // í˜„ì¬ ì„¸ê·¸ë¨¼íŠ¸ ë¦¬ìŠ¤íŠ¸ì— ë°˜ì˜
+			hookSegments[i + 1] = nextSeg;
+		}
+	}
+
+	// ì„¸ê·¸ë¨¼íŠ¸ êµ¬ì¡°ì²´
+	public struct HookSegment
+	{
+		public Vector2 CurrPos;     // í˜„ì¬ ì„¸ê·¸ë¨¼íŠ¸ ìœ„ì¹˜
+		public Vector2 OldPos;      // ì´ì „ ì„¸ê·¸ë¨¼íŠ¸ ìœ„ì¹˜
+
+		public HookSegment(Vector2 pos)
+		{
+			CurrPos = pos;
+			OldPos = pos;
+		}
+	}
 }
