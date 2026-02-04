@@ -6,15 +6,16 @@ using UnityEngine;
 /// 
 namespace EnumType
 {
-	// 메인 메뉴 설정 버튼 타입
+	// 메뉴 설정 버튼 타입
 	public enum BTNType
 	{
 		Start,
-		Option,
+        Option,
+        Setting,
 		Sound,
 		Back,
-		Quit,
-		Leave
+        Leave,
+        Quit,
 	}
 
 	// 적 상태
