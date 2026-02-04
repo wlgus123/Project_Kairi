@@ -686,11 +686,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d8f45148cd5db346b7de84d8e4f0c75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  glitchGlobalVolume: {fileID: 0}
+  tvGlobalVolume: {fileID: 0}
+  damagedCanvas: {fileID: 0}
+  blackCanvas: {fileID: 0}
+  slowGaugeSlider: {fileID: 0}
+  slowFactor: 0
+  slowMaxGauge: 0
+  slowGauge: 0
+  slowDecreaseRate: 0
+  slowRecoverRate: 0
+  maxTime: 0.3
   isGrounded: 0
   hasCollided: 0
+  isSlow: 0
+  walkSoundInterval: 0.7
+  isWalking: 0
   inputVec: {x: 0, y: 0}
-  maxTime: 0.3
-  damagedCanvas: {fileID: 0}
 --- !u!114 &1031755658764454315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -706,8 +718,8 @@ MonoBehaviour:
   mainCam: {fileID: 0}
   globalVolume: {fileID: 0}
   line: {fileID: 0}
-  visualizerLine: {fileID: 0}
-  hook: {fileID: 0}
+  visualizerLine: {fileID: 4714670670714101203, guid: 41f038095ff068f41a0fb08061574cbe, type: 3}
+  hook: {fileID: 2782950733400507741, guid: 03fc14595bba65b4f835be3b07a73c7d, type: 3}
   isHookActive: 0
   isLineMax: 0
   isAttach: 0
@@ -798,6 +810,7 @@ MonoBehaviour:
     \uB9D0\uACE0\u2026 \uADF8\uB798. \uAC71\uC815 \uB9C8."
   typingSpeed: 0.05
   isAction: 0
+  cutscenePlayerIndex: 0
 --- !u!1 &7423139835668404506
 GameObject:
   m_ObjectHideFlags: 0

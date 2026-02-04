@@ -9,64 +9,65 @@ using tagName = Globals.TagName;
 
 public class GrapplingHook : MonoBehaviour
 {
-	[Header("메인 카메라")]
-	public Camera mainCam;
-	[Header("Global Volume 오브젝트")]
-	public Volume globalVolume;
-	[Header("Line 오브젝트 LineRenderer")]
-	public LineRenderer line;
-	[Header("visualizerLine 오브젝트 LineRenderer")]
-	public LineRendererAtoB visualizerLine;
-	[Header("Hook 오브젝트 Transform")]
-	public Transform hook;
-	[Header("훅 활성화 상태 여부")]
-	public bool isHookActive;
-	[Header("그래플링 훅 길이가 최대인지")]
-	public bool isLineMax;
-	[Header("그래플링 훅 사용 중인지 여부")]
-	public bool isAttach;
-	[Header("그래플링 훅으로 무언가를 잡았는지 여부")]
-	public bool isAttachElement;
-	[Header("슬로우 비율")]
-	public float slowFactor;
-	[Header("원래 속도로 복귀하는 데 걸리는 시간")]
-	public float slowLength;
-	[Header("오프셋 (잡힌 오브젝트 이동 보정값)")]
-	public Vector3 followOffset = new Vector3(1f, 0f, 0f);  // 기본값: (1, 0, 0)
-	[Header("회전 에너지 게이지 UI")]
-	public Slider swingGauge;
-	[Header("저장가능한 최대 회전 수(에너지 제한)")]
-	public int maxTurns = 1;
-	[Header("회전 중이지 않을 때 게이지 감소 속도")]
-	public float decreaseSpeed = 400f;
-	[Header("회전할 때 회전량 증가 배율")]
-	public float increaseMultiplier = 1.0f;
-	[Header("회전으로 인정할 최소 각도 변화")]
-	public float turnMinDelta = 0.3f;
-	[Header("속도 증가 배율")]
-	public float boostMultiplier = 1.5f;
-	[Header("Boost 지속 시간")]
-	public float boostDuration = 0.5f;
+    [Header("메인 카메라")]
+    public Camera mainCam;
+    [Header("Global Volume 오브젝트")]
+    public Volume globalVolume;
+    [Header("Line 오브젝트 LineRenderer")]
+    public LineRenderer line;
+    [Header("visualizerLine 프리펩")]
+    public GameObject visualizerLine;
+    [Header("Hook 오브젝트 Transform")]
+    public Transform hook;
+    [Header("훅 활성화 상태 여부")]
+    public bool isHookActive;
+    [Header("그래플링 훅 길이가 최대인지")]
+    public bool isLineMax;
+    [Header("그래플링 훅 사용 중인지 여부")]
+    public bool isAttach;
+    [Header("그래플링 훅으로 무언가를 잡았는지 여부")]
+    public bool isAttachElement;
+    [Header("슬로우 비율")]
+    public float slowFactor;
+    [Header("원래 속도로 복귀하는 데 걸리는 시간")]
+    public float slowLength;
+    [Header("오프셋 (잡힌 오브젝트 이동 보정값)")]
+    public Vector3 followOffset = new Vector3(1f, 0f, 0f);  // 기본값: (1, 0, 0)
+    [Header("회전 에너지 게이지 UI")]
+    public Slider swingGauge;
+    [Header("저장가능한 최대 회전 수(에너지 제한)")]
+    public int maxTurns = 1;
+    [Header("회전 중이지 않을 때 게이지 감소 속도")]
+    public float decreaseSpeed = 400f;
+    [Header("회전할 때 회전량 증가 배율")]
+    public float increaseMultiplier = 1.0f;
+    [Header("회전으로 인정할 최소 각도 변화")]
+    public float turnMinDelta = 0.3f;
+    [Header("속도 증가 배율")]
+    public float boostMultiplier = 1.5f;
+    [Header("Boost 지속 시간")]
+    public float boostDuration = 0.5f;
 
-	private Vector2 mousedir;
-	private bool hasShakedOnAttach = false;
-	private bool hasPlayedAttachSound = false;
-	private bool isPlayedDraftSound = false;
-	private float distance = 0f;                            // 표시선 길이
-	private float accumulatedAngle = 0f;                    // 누적 회전량(게이지 수치)
-	private float maxAngle;                                 // maxTurns 회전 시 최대 각도(= 360 * maxTurns)
-	private float previousAngle;                            // 이전 프레임의 각도
-	private bool angleInitialized = false;                  // 첫 프레임 각도 초기화 여부
-	private int storedDirection = 0;                        // 저장된 회전 방향(1=시계, -1=반시계, 0=없음)
-	private Coroutine currentBoost;
-	private Coroutine slowCoroutine;                        // 슬로우 효과 코루틴
-	private Rigidbody2D rigid;
-	private SpriteRenderer sprite;
-	private DistanceJoint2D hookJoint;
-	private ColorAdjustments colorAdjustments;
-	private List<Transform> hookingList = new List<Transform>();    // 그래플링 훅으로 잡은 요소 리스트
+    private Vector2 mousedir;
+    private bool hasShakedOnAttach = false;
+    private bool hasPlayedAttachSound = false;
+    private bool isPlayedDraftSound = false;
+    private float distance = 0f;                            // 표시선 길이
+    private float accumulatedAngle = 0f;                    // 누적 회전량(게이지 수치)
+    private float maxAngle;                                 // maxTurns 회전 시 최대 각도(= 360 * maxTurns)
+    private float previousAngle;                            // 이전 프레임의 각도
+    private bool angleInitialized = false;                  // 첫 프레임 각도 초기화 여부
+    private int storedDirection = 0;                        // 저장된 회전 방향(1=시계, -1=반시계, 0=없음)
+    private Coroutine currentBoost;
+    private Coroutine slowCoroutine;                        // 슬로우 효과 코루틴
+    private Rigidbody2D rigid;
+    private SpriteRenderer sprite;
+    private DistanceJoint2D hookJoint;
+    private ColorAdjustments colorAdjustments;
+    private List<Transform> hookingList = new List<Transform>();    // 그래플링 훅으로 잡은 요소 리스트
+    private LineRendererAtoB lineAtoB;						// 임시 표시선 오브젝트
 
-	private void Awake()
+    private void Awake()
 	{
 		rigid = GetComponent<Rigidbody2D>();
 		sprite = GetComponent<SpriteRenderer>();
@@ -74,10 +75,13 @@ public class GrapplingHook : MonoBehaviour
 	}
 
 	void Start()
-	{
-		// 라인을 그리는 포지션을 두개로 설정하고 (PositionCount)
-		// 한 점은 Player의 포지션, 한 점은 Hook의 포지션으로 설정 (SetPosition)
-		line.positionCount = 2;
+    {
+        GameObject lineObj = Instantiate(visualizerLine);       // 오브젝트 인스턴스화
+        lineAtoB = lineObj.GetComponent<LineRendererAtoB>();
+
+        // 라인을 그리는 포지션을 두개로 설정하고 (PositionCount)
+        // 한 점은 Player의 포지션, 한 점은 Hook의 포지션으로 설정 (SetPosition)
+        line.positionCount = 2;
 		line.endWidth = line.startWidth = 0.05f;
 		line.SetPosition(0, transform.position);
 		line.SetPosition(1, hook.position);
@@ -498,44 +502,44 @@ public class GrapplingHook : MonoBehaviour
 		currentBoost = null;
 	}
 
-	public void CursorPathMarking()
-	{
-		if (Mouse.current == null) return;
-		//if (GameManager.Instance.dialogSystem && GameManager.Instance.dialogSystem.isAction) return;    // 상호작용 중일 경우 표시선 그리지 않음
+    public void CursorPathMarking()
+    {
+        if (Mouse.current == null) return;
+        if (GameManager.Instance.dialogSystem && GameManager.Instance.dialogSystem.isAction) return;    // 상호작용 중일 경우 표시선 그리지 않음
 
-		Vector3 mouseScreen = Mouse.current.position.ReadValue();                       // 스크린 좌표 구하기
-		mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);                        // z값 보정
-		Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen);                     // 월드 좌표
-		Vector2 dir = (worldPos - (Vector2)transform.position).normalized;              // 광선 방향
-		LayerMask mask = ~LayerMask.GetMask(tagName.player);                            // 레이케스트 플레이어 충돌 무시
-		RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
+        Vector3 mouseScreen = Mouse.current.position.ReadValue();                       // 스크린 좌표 구하기
+        mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);                        // z값 보정
+        Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen);                     // 월드 좌표
+        Vector2 dir = (worldPos - (Vector2)transform.position).normalized;              // 광선 방향
+        LayerMask mask = ~LayerMask.GetMask(tagName.player);                            // 레이케스트 플레이어 충돌 무시
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
 
-		if (isAttach || isHookActive)   // 훅 사용 중일 경우 선 비활성화
-		{
-			visualizerLine.Stop();
-			return;
-		}
+        if (isAttach || isHookActive)   // 훅 사용 중일 경우 선 비활성화
+        {
+            lineAtoB.Stop();
+            return;
+        }
 
-		if (hit)        // 광선에 부딪히는 오브젝트가 있으면 선 활성화
-		{
-			if (hit.collider.CompareTag(tagName.npc))   // 부딪힌 요소가 NPC일 경우 선 비활성화
-			{
-				visualizerLine.Stop();
-				return;
-			}
+        if (hit)        // 광선에 부딪히는 오브젝트가 있으면 선 활성화
+        {
+            if (hit.collider.CompareTag(tagName.npc))   // 부딪힌 요소가 NPC일 경우 선 비활성화
+            {
+                lineAtoB.Stop();
+                return;
+            }
 
-			// 부딪힌 요소에 따라 선 색상 변경
-			// 뭔가를 들고 있을 때 오브젝트나 몬스터가 부딪혔을 경우
-			if (isAttachElement && (hit.collider.CompareTag(tagName.enemy) || hit.collider.CompareTag(tagName.obj)))
-				visualizerLine.SetLineColor(new Color(1f, 0.2f, 0.2f));
-			else if (hit.collider.CompareTag(tagName.obj))
-				visualizerLine.SetLineColor(new Color(0.49f, 0.85f, 0.45f));
-			else
-				visualizerLine.SetLineColor(new Color(0.18f, 0.76f, 1f));
+            // 부딪힌 요소에 따라 선 색상 변경
+            // 뭔가를 들고 있을 때 오브젝트나 몬스터가 부딪혔을 경우
+            if (isAttachElement && (hit.collider.CompareTag(tagName.enemy) || hit.collider.CompareTag(tagName.obj)))
+                lineAtoB.SetLineColor(new Color(1f, 0.2f, 0.2f));
+            else if (hit.collider.CompareTag(tagName.obj))
+                lineAtoB.SetLineColor(new Color(0.49f, 0.85f, 0.45f));
+            else
+                lineAtoB.SetLineColor(new Color(0.18f, 0.76f, 1f));
 
-			visualizerLine.Play(transform.position, hit.point);
-		}
-		else
-			visualizerLine.Stop();
-	}
+            lineAtoB.Play(transform.position, hit.point);
+        }
+        else
+            lineAtoB.Stop();
+    }
 }
