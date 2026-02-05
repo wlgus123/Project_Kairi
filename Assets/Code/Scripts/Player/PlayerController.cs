@@ -19,18 +19,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     public GameObject damagedCanvas;
     [Header("검은 화면 UI")]
     public Image blackCanvas;
-    [Header("슬로우 게이지 UI")]
-    public Slider slowGaugeSlider;
-    [Header("슬로우 비율")]
-    public float slowFactor;
-	[Header("슬로우 게이지 최대치")]
-	public float slowMaxGauge;
-    [Header("슬로우 게이지 현재치")]
-    public float slowGauge;
-    [Header("슬로우 게이지 감소 속도")]
-    public float slowDecreaseRate;
-    [Header("슬로우 게이지 회복 속도")]
-    public float slowRecoverRate;
     [Header("땅에서 움직이지 않을 때 일정 시간 이후 Run에서 Idle")]
     public float maxTime;
     private float curTime;
@@ -38,8 +26,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     public bool isGrounded;
     [Header("충돌 체크")]
     public bool hasCollided = false;
-    [Header("슬로우 상태")]
-    public bool isSlow = false;
     [Header("걷기 사운드")]
     public float walkSoundInterval = 0.7f;
     private float walkSoundTimer = 0f;
@@ -75,8 +61,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     void Update()
     {
         HandleTimelinePlaying();    // 타임라인 중 못 움직임
-        HandleSlowMode();           // 슬로우 모드
-        UpdateSlowGauge();	        // 슬로우 게이지 업데이트
         UpdateAnimation();          // 애니메이션
         HandleWalkSound();          // 걷기 사운드
     }
@@ -118,15 +102,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             inputVec = Vector2.zero;
             return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
-        }
-    }
-
-    public void HandleSlowMode()        // 슬로우 모드
-    {
-        if (Keyboard.current.leftShiftKey.wasPressedThisFrame)
-        {
-            if (!isSlow && slowGauge > 0f) StartSlow();
-            else StopSlow();
         }
     }
 
@@ -281,45 +256,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
     }
    
-    void UpdateSlowGauge()      // 슬로우 게이지 업데이트
-    {
-        if (isSlow)
-        {
-            slowGauge -= slowDecreaseRate * Time.unscaledDeltaTime;
-
-            if (slowGauge <= 0f)
-            {
-                slowGauge = 0f;
-                StopSlow(); // 자동 해제
-            }
-        }
-        else
-        {
-            slowGauge += slowRecoverRate * Time.unscaledDeltaTime;
-            if (slowGauge > slowMaxGauge)
-                slowGauge = slowMaxGauge;
-        }
-        slowGaugeSlider.value = slowGauge / slowMaxGauge;
-    }
- 
-    void StopSlow()     // 슬로우 효과 종료
-    {
-        if (!isSlow) return;
-        isSlow = false;
-        Time.timeScale = 1f;            // 시간 원래대로
-        Time.fixedDeltaTime = 0.02f;
-        sprite.color = Color.white;     // 그래픽 복구
-    }
-  
-    void StartSlow()    // 슬로우 효과 시작
-    {
-        if (isSlow) return;
-        isSlow = true;    
-        sprite.color = Color.red;
-        Time.timeScale = slowFactor;    
-        Time.fixedDeltaTime = 0.02f * Time.timeScale;
-    }
-
     void OnCollisionEnter2D(Collision2D collision)
     {
         CheckGround(collision);     // 바닥 체크
