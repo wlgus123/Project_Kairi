@@ -8,82 +8,71 @@ public class BtnType : MonoBehaviour
 {
     public EnumType.BTNType currentType;
     public Transform buttonScale;
-    //public AudioSource usedsource;
-    //public AudioClip usedclip;
     Vector3 defaultScale;
+    bool isProcessing;      // ï¿½ï¿½Æ° ï¿½ï¿½Å¸ ï¿½ï¿½ï¿½ï¿½
 
-    bool isProcessing; // ¹öÆ° ¿¬Å¸ ¹æÁö
+    MainSetting cachedMainSetting;
 
-    private void Start()
+    void Start()
     {
-        defaultScale = buttonScale.localScale;
-
-        //if (usedsource != null)
-        //    usedsource.volume = 0.2f; // 0~1 »çÀÌ °ªÀ¸·Î º¼·ý Á¶Àý
+        if (buttonScale != null)
+            defaultScale = buttonScale.localScale;
     }
 
-    public void OnBtnClick()   // ¹öÆ° OnClick¿¡ ¿¬°á
+    public void OnBtnClick()    // OnCLickï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     {
         if (isProcessing) return;
         StartCoroutine(OnBtnClickRoutine());
     }
 
-    private IEnumerator OnBtnClickRoutine()
+    IEnumerator OnBtnClickRoutine()
     {
         isProcessing = true;
 
-        //// 1. Å¬¸¯ »ç¿îµå Àç»ý
-        //if (usedsource != null && usedclip != null)
-        //{
-        //    usedsource.PlayOneShot(usedclip, 0.2f);
-
-        //    // Å¬¸³ ±æÀÌ¸¸Å­ ±â´Ù¸®±â (±æ¸é 0.1f~0.2f·Î ÁÙ¿©µµ µÊ)
-        //    yield return new WaitForSeconds(usedclip.length);
-        //}
-
-        // 2. ±× ´ÙÀ½ ¹öÆ° ±â´É ½ÇÇà
         switch (currentType)
         {
-            case EnumType.BTNType.Start:
+            case EnumType.BTNType.MainStart:
                 SceneManager.LoadScene(sceneName.stage01);
                 break;
 
-            case EnumType.BTNType.Option:
+            case EnumType.BTNType.MainSetting:
+                GetMainSetting()?.OpenSetting();
+                break;
 
+            case EnumType.BTNType.MainQuit:
+                GetMainSetting()?.OpenQuit();
+                break;
+
+            case EnumType.BTNType.MainQuitNo:
+                GetMainSetting()?.CloseQuit();
+                break;
 
             case EnumType.BTNType.Setting:
-                // GameManager°¡ Á¸ÀçÇÏ°í escKey°¡ nullÀÌ ¾Æ´Ï¸é openOption ½ÇÇà
-                if (GameManager.Instance != null)
-                {
-                    // escKey°¡ nullÀÌ¸é ¾À¿¡¼­ Ã£¾Æ¼­ ¿¬°á
-                    if (GameManager.Instance.escKey == null)
-                    {
-                        GameManager.Instance.escKey = Object.FindFirstObjectByType<ESCKey>();
-                        if (GameManager.Instance.escKey == null)
-                        {
-                            Debug.LogWarning("¾À¿¡ ESCKey ¿ÀºêÁ§Æ®°¡ ¾ø½À´Ï´Ù!");
-                            break;
-                        }
-                    }
-
-                    GameManager.Instance.escKey.openSetting();
-                }
-                else
-                {
-                    Debug.LogWarning("GameManager.Instance°¡ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù!");
-                }
+                GetESCKey()?.openSetting();
                 break;
 
-            case EnumType.BTNType.Back:
+            case EnumType.BTNType.GameLeave:
+                GetESCKey()?.openLeave();
                 break;
 
-            case EnumType.BTNType.Leave:
+            case EnumType.BTNType.GameQuit:
+                GetESCKey()?.openQuit();
+                break;
+
+            case EnumType.BTNType.LeaveYes:
                 SceneManager.LoadScene(sceneName.mainMenu);
                 break;
 
-            case EnumType.BTNType.Quit:
-                Application.Quit();
-                Debug.Log("°ÔÀÓ Á¾·á");
+            case EnumType.BTNType.LeaveNo:
+                GetESCKey()?.CloseLeave();
+                break;
+
+            case EnumType.BTNType.QuitYes:
+                QuitGame();
+                break;
+
+            case EnumType.BTNType.QuitNo:
+                GetESCKey()?.CloseQuit();
                 break;
         }
 
@@ -91,6 +80,45 @@ public class BtnType : MonoBehaviour
         yield break;
     }
 
+    MainSetting GetMainSetting()
+    {
+        if (cachedMainSetting == null)
+            cachedMainSetting = Object.FindFirstObjectByType<MainSetting>();
+
+        if (cachedMainSetting == null)
+            Debug.LogWarning("ï¿½ï¿½ï¿½ï¿½ MainSetting ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
+
+        return cachedMainSetting;
+    }
+
+    ESCKey GetESCKey()
+    {
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("GameManager.Instance ï¿½ï¿½ï¿½ï¿½");
+            return null;
+        }
+
+        if (GameManager.Instance.escKey == null)
+            GameManager.Instance.escKey = Object.FindFirstObjectByType<ESCKey>();
+
+        if (GameManager.Instance.escKey == null)
+            Debug.LogWarning("ï¿½ï¿½ï¿½ï¿½ ESCKey ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
+
+        return GameManager.Instance.escKey;
+    }
+
+    void QuitGame()
+    {
+#if UNITY_EDITOR
+        Debug.Log("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
+    // CanvasGroup
     public void CanvasGroupOn(CanvasGroup cg)
     {
         if (cg == null) return;
