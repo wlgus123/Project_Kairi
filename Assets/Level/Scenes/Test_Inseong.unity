@@ -1821,7 +1821,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4756874103759277193, guid: aacc80020f45af9459318ec226fa961d, type: 3}
   m_PrefabInstance: {fileID: 5747691242961519039}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1953282218}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d8f45148cd5db346b7de84d8e4f0c75, type: 3}
@@ -1837,7 +1837,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1031755658764454315, guid: aacc80020f45af9459318ec226fa961d, type: 3}
   m_PrefabInstance: {fileID: 5747691242961519039}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1953282218}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 96080ce099ea71e4088789d1539497b5, type: 3}
@@ -26473,6 +26473,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TempBuilding
       objectReference: {fileID: 0}
+    - target: {fileID: 4731672739603897824, guid: 73cd35ecb6d30a64194bea94e46a69ac, type: 3}
+      propertyPath: m_Intensity
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 5485824612760583166, guid: 73cd35ecb6d30a64194bea94e46a69ac, type: 3}
       propertyPath: m_SortingLayer
       value: 2
@@ -36390,6 +36394,11 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &1953282218 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7270546194825118783, guid: aacc80020f45af9459318ec226fa961d, type: 3}
+  m_PrefabInstance: {fileID: 5747691242961519039}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1962506475
 GameObject:
   m_ObjectHideFlags: 0
@@ -37864,7 +37873,7 @@ PrefabInstance:
     - target: {fileID: 1863021073462724531, guid: aacc80020f45af9459318ec226fa961d, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+      objectReference: {fileID: 0}
     - target: {fileID: 4756874103759277193, guid: aacc80020f45af9459318ec226fa961d, type: 3}
       propertyPath: maxTime
       value: 0.1
@@ -37928,19 +37937,40 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7270546194825118783, guid: aacc80020f45af9459318ec226fa961d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5747691242961519046}
   m_SourcePrefab: {fileID: 100100000, guid: aacc80020f45af9459318ec226fa961d, type: 3}
 --- !u!114 &5747691242961519040 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4829653216477449006, guid: aacc80020f45af9459318ec226fa961d, type: 3}
   m_PrefabInstance: {fileID: 5747691242961519039}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1953282218}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 16d334fe44497ba40ae018936610b47d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
+--- !u!114 &5747691242961519046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1953282218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8f6d3c6e4250e84192f5b34ce9e71bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Elringus.SpriteGlow.Runtime::SpriteGlow.SpriteGlowEffect
+  glowColor: {r: 1, g: 1, b: 1, a: 1}
+  glowBrightness: 1.1
+  outlineWidth: 1
+  alphaThreshold: 0.01
+  drawOutside: 0
+  enableInstancing: 0
 --- !u!1001 &6948713071234532784
 PrefabInstance:
   m_ObjectHideFlags: 0
