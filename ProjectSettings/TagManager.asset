@@ -53,5 +53,11 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Light
+    uniqueID: 758426251
+    locked: 0
+  - name: Word
+    uniqueID: 2317145621
+    locked: 0
   m_RenderingLayers:
   - Default
