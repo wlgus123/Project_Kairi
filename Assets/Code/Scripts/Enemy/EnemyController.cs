@@ -54,7 +54,13 @@ public class EnemyController : MonoBehaviour
             {
 				if (collision.gameObject.TryGetComponent<Enemy>(out var target))
 				{
-					target.TakeDamage(1);       // 닿은 적에게 데미지 주기
+                    // 첫 번째 접촉점 기준
+                    ContactPoint2D contact = collision.contacts[0];
+
+                    // normal은 "맞은 대상 기준으로 바깥 방향"
+                    Vector2 hitDir = -contact.normal;
+                    target.SetHitDirection(hitDir);
+                    target.TakeDamage(1);       // 닿은 적에게 데미지 주기
 					damageable.TakeDamage(1);   // 자기 자신도 데미지 받기
 				}
 			}
@@ -62,7 +68,15 @@ public class EnemyController : MonoBehaviour
 			else if (collision.gameObject.CompareTag(tagName.throwingObj))
 			{
 				if (collision.gameObject.TryGetComponent<Enemy>(out var target))
+                {
+                    // 첫 번째 접촉점 기준
+                    ContactPoint2D contact = collision.contacts[0];
+
+                    // normal은 "맞은 대상 기준으로 바깥 방향"
+                    Vector2 hitDir = -contact.normal;
+                    target.SetHitDirection(hitDir);
                     target.TakeDamage(1);       // 닿은 적에게 데미지 주기
+                }
             }
 		}
 	}

@@ -2,10 +2,13 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour, IDamageable
 {
-	EnemyStatsRuntime currStat;			// 현재 스탯
+    [Header("피 이펙트")]
+    public GameObject bloodEffectPrefab;
+
+    EnemyStatsRuntime currStat;			// 현재 스탯
     EnemySpawner ownerSpawner;
     public EnumType.EnemyState state;   // 현재 상태
-
+    Vector2 lastHitDir = Vector2.right; // 마지막으로 맞은 방향
     public void Init(EnemySpawner spawner)
     {
         ownerSpawner = spawner;
@@ -18,10 +21,10 @@ public class Enemy : MonoBehaviour, IDamageable
     }
 
     void Start()
-	{
-		state = EnumType.EnemyState.Idle;   // 상태 초기화
-		currStat = new EnemyStatsRuntime(GameManager.Instance.enemyStats);  // 각 스탯 초기화
-	}
+    {
+        state = EnumType.EnemyState.Idle;   // 상태 초기화
+        currStat = new EnemyStatsRuntime(GameManager.Instance.enemyStats);  // 각 스탯 초기화
+    }
 
     public void TakeDamage(int attack)      // 데미지 입히기
     {
@@ -32,13 +35,38 @@ public class Enemy : MonoBehaviour, IDamageable
         if (currStat.currentHP <= 0)
             Die();
     }
+    public void SetHitDirection(Vector2 hitDir)     // 방향만 저장하는 함수
+    {
+        lastHitDir = hitDir.normalized;
+    }
+
+    void SpawnBloodEffect(Vector2 hitDir)
+    {
+        if (bloodEffectPrefab == null) return;
+
+        GameObject blood = Instantiate(
+            bloodEffectPrefab,
+            transform.position,
+            Quaternion.identity
+        );
+
+        if (blood.TryGetComponent<SpriteRenderer>(out var sr))
+        {
+            // 오른쪽에서 맞았으면 flip
+            sr.flipX = hitDir.x < 0f;
+        }
+
+        Destroy(blood, 1f);
+    }
 
     void Die()
     {
-        int randomNum = Random.Range(1, 4); // 1 ~ 3
+        SpawnBloodEffect(lastHitDir);
+
+        int randomNum = Random.Range(1, 4);
         Debug.Log($"{randomNum}번 죽음 효과");
 
-        ownerSpawner?.OnEnemyDead(this);        // 풀로 반환
+        ownerSpawner?.OnEnemyDead(this);
         GameManager.Instance.poolManager.ReturnToPool(gameObject);
     }
 }

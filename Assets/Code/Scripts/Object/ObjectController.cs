@@ -107,19 +107,32 @@ public class ObjectController : MonoBehaviour
     {
         CheckGround(collision);     // 바닥 체크
 
-        if (gameObject.CompareTag(tagName.throwingObj))
+        if (gameObject.CompareTag(tagName.throwingObj) && collision.gameObject.CompareTag(tagName.enemy))
         {
-            if (collision.gameObject.CompareTag(tagName.enemy))     // 적과 닿았을 경우
+            if (collision.gameObject.TryGetComponent<Enemy>(out var target))
             {
-                if (collision.gameObject.TryGetComponent<Enemy>(out var target))
-                    target.TakeDamage(1);       // 닿은 적에게 데미지 주기
+                // 첫 번째 접촉점 기준
+                ContactPoint2D contact = collision.contacts[0];
+
+                // normal은 "맞은 대상 기준으로 바깥 방향"
+                Vector2 hitDir = -contact.normal;
+                target.SetHitDirection(hitDir);
+                target.TakeDamage(1);       // 닿은 적에게 데미지 주기
             }
         }
 
         if (CompareTag(tagName.throwingObj) && explosionObject && collision.gameObject.CompareTag(tagName.enemy))
         {
             if (collision.gameObject.TryGetComponent<Enemy>(out var target))
+            {
+                // 첫 번째 접촉점 기준
+                ContactPoint2D contact = collision.contacts[0];
+
+                // normal은 "맞은 대상 기준으로 바깥 방향"
+                Vector2 hitDir = -contact.normal;
+                target.SetHitDirection(hitDir);
                 Explode();
+            }
         }
 
         if (crackObject && collision.gameObject.CompareTag(tagName.throwingObj) || collision.gameObject.CompareTag(tagName.throwingEnemy))
@@ -141,7 +154,11 @@ public class ObjectController : MonoBehaviour
             if (hit.CompareTag(tagName.enemy))
             {
                 if (hit.TryGetComponent<Enemy>(out var target))
+                {
+                    Vector2 hitDir = (target.transform.position - transform.position).normalized;
+                    target.SetHitDirection(hitDir);
                     target.TakeDamage(1);
+                }
             }
         }
         StartCoroutine(SpawnExplosionEffect(explosionPos));
