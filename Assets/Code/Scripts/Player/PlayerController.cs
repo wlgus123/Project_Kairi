@@ -109,23 +109,23 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         float speed = GameManager.Instance.playerStatsRuntime.speed;
 
-        if (!wasAttach && grappling.isAttach)       // 그래플 시작 순간
-            rigid.linearVelocity = new Vector2(0f, rigid.linearVelocity.y); // 입력 방향으로 쌓인 속도만 수평 가속도 제거, 수직 가속도 유지
+        //if (!wasAttach && grappling.isAttach)       // 그래플 시작 순간
+        //    rigid.linearVelocity = new Vector2(0f, rigid.linearVelocity.y); // 입력 방향으로 쌓인 속도만 수평 가속도 제거, 수직 가속도 유지
 
-        if (grappling.isAttach)
-        {
-            float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
-            rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
+        //if (grappling.isAttach)
+        //{
+        //    float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
+        //    rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
 
-            if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
-                rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
-        }
-        else
-        {
+        //    if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
+        //        rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
+        //}
+        //else
+        //{
             float x = inputVec.x * speed * Time.deltaTime;
             transform.Translate(x, 0, 0);
-        }
-        wasAttach = grappling.isAttach;     // 상태 저장 (맨 마지막!)
+        //}
+        //wasAttach = grappling.isAttach;     // 상태 저장 (맨 마지막!)
     }
 
     void HandleWalkSound()
