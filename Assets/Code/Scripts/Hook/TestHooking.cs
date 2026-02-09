@@ -12,12 +12,12 @@ public class TestHooking : MonoBehaviour
     public Vector2 destiny;
     public float speed = 1f;            // 훅 발사 속도 (TODO: 스크립터블 오브젝트에 있는 speed로 사용하기)
 
-    [Header("중력")]
-    public Vector2 gravityForce = new Vector2(0f, -5f);     // 로프 중력값
-    public float dampingFactor = 1f;     // 제동 계수 (과도한 흔들림 제어용)
+    [Header("훅 중력")]
+	public Vector2 gravityForce = new Vector2(0f, -80f);     // 로프 중력값
+	public float dampingFactor = 0.85f;     // 제동 계수 (과도한 흔들림 제어용)
 
-    [Header("제약 조건")]
-    public int constraintRuns = 50;    // 실행 횟수
+	[Header("제약 조건")]
+    public int constraintRuns = 500;    // 실행 횟수
 
     [HideInInspector] public GameObject player;             // 플레이어 오브젝트
     [HideInInspector] public GameObject lastNode;           // 마지막에 생성한 노드
@@ -36,7 +36,7 @@ public class TestHooking : MonoBehaviour
 
     private void Start()
     {
-        segmentCnt = (int)(lineLen / hookVal.segmentLen);
+		segmentCnt = (int)(lineLen / hookVal.segmentLen);
         line.positionCount = segmentCnt;
 
         player = GameObject.FindGameObjectWithTag(TagName.player);    // 플레이어 태그로 정보 불러오기
@@ -162,14 +162,14 @@ public class TestHooking : MonoBehaviour
         }
     }
 
-    // 훅 액션
-    public void HookMoveAction()
-    {
-        transform.position = Vector2.MoveTowards(transform.position, destiny, speed);
-    }
+	// 훅 액션
+	public void HookMoveAction()
+	{
+		transform.position = Vector2.MoveTowards(transform.position, destiny, speed);
+	}
 
-    // 세그먼트 구조체
-    public struct HookSegment
+	// 세그먼트 구조체
+	public struct HookSegment
     {
         public Vector2 CurrPos;     // 현재 세그먼트 위치
         public Vector2 OldPos;      // 이전 세그먼트 위치
