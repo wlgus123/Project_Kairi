@@ -25,10 +25,6 @@ public class TestGrapplingHook : MonoBehaviour
 	/* 임시 표시선 */
 	private LineRendererAtoB lineAtoB;  // 임시 표시선 관련 데이터
 
-	private void Awake()
-	{
-	}
-
 	private void Start()
 	{
 		/* 훅 정보 */
@@ -47,6 +43,53 @@ public class TestGrapplingHook : MonoBehaviour
 	{
 		CursorPathMarking();    // 임시 표시선 그리기
 		ActiveHook();			// 훅 사용
+	}
+
+	// 훅 사용
+	private void ActiveHook()
+	{
+		// 마우스 좌클릭 시
+		if (Mouse.current.leftButton.wasPressedThisFrame)
+		{
+			if (!isAttach)  // 훅이 활성화되지 않았을 경우
+			{
+				Vector3 mouseScreen = Mouse.current.position.ReadValue();       // 스크린 좌표 구하기
+				mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);        // z값 보정
+				Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen);     // 월드 좌표
+				Vector2 dir = (worldPos - (Vector2)transform.position).normalized;              // 광선 방향
+				LayerMask mask = LayerMask.GetMask(tagName.ground);                             // 레이케스트 땅만 맞출 수 있도록 마스크 생성
+				RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
+
+				hook.GetComponent<TestHooking>().HookMoveAction();      // 훅 움직이는 액션
+
+				if (hit)
+				{
+					TestHooking hooking;
+					Vector2 destiny = hit.point;    // Raycast로 쐈을 때 충돌된 위치
+					curHook = Instantiate(hook, transform.position, Quaternion.identity);   // 플레이어 위치에 훅 생성
+
+					hooking = curHook.GetComponent<TestHooking>();
+					hooking.destiny = destiny;
+
+					// 점 사이 거리를 고려하여 거리만큼의 점 갯수 구하기
+					float len = Vector2.Distance(transform.position, destiny);
+					hooking.lineLen = len;
+
+					isAttach = true;    // 훅 활성 여부 변경
+					
+				}
+			}
+		}
+		// 마우스를 뗐을 때
+		else if (Mouse.current.leftButton.wasReleasedThisFrame)
+		{
+			if (isAttach)
+			{
+				Destroy(curHook);
+
+				isAttach = false;
+			}
+		}
 	}
 
 	// 임시 표시선 그리기
@@ -89,51 +132,5 @@ public class TestGrapplingHook : MonoBehaviour
 		}
 		else
 			lineAtoB.Stop();
-	}
-
-	// 훅 사용
-	private void ActiveHook()
-	{
-		// 마우스 좌클릭 시
-		if (Mouse.current.leftButton.wasPressedThisFrame)
-		{
-			if (!isAttach)  // 훅이 활성화되지 않았을 경우
-			{
-				Vector3 mouseScreen = Mouse.current.position.ReadValue();       // 스크린 좌표 구하기
-				mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);        // z값 보정
-				Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen);     // 월드 좌표
-				Vector2 dir = (worldPos - (Vector2)transform.position).normalized;              // 광선 방향
-				LayerMask mask = LayerMask.GetMask(tagName.ground);                             // 레이케스트 땅만 맞출 수 있도록 마스크 생성
-				RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
-
-				hook.GetComponent<TestHooking>().HookMoveAction();      // 훅 움직이는 액션
-
-				if (hit)
-				{
-					TestHooking hooking;
-					Vector2 destiny = hit.point;    // Raycast로 쐈을 때 충돌된 위치
-					curHook = Instantiate(hook, transform.position, Quaternion.identity);   // 플레이어 위치에 훅 생성
-
-					hooking = curHook.GetComponent<TestHooking>();
-					hooking.destiny = destiny;
-
-					// 점 사이 거리를 고려하여 거리만큼의 점 갯수 구하기
-					float len = Vector2.Distance(transform.position, destiny);
-					hooking.lineLen = len;
-
-					isAttach = true;    // 훅 활성 여부 변경
-				}
-			}
-		}
-		// 마우스를 뗐을 때
-		else if (Mouse.current.leftButton.wasReleasedThisFrame)
-		{
-			if (isAttach)
-			{
-				Destroy(curHook);
-
-				isAttach = false;
-			}
-		}
 	}
 }

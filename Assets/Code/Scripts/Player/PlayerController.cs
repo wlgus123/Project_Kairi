@@ -31,6 +31,9 @@ public class PlayerController : MonoBehaviour, IDamageable
     private float walkSoundTimer = 0f;
     public bool isWalking = false;
 
+	// TODO: Test
+	private TestGrapplingHook testHook;
+
     public Vector2 inputVec;
     Rigidbody2D rigid;
     SpriteRenderer sprite;
@@ -41,7 +44,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     private Coroutine playerDieCoroutine;
     private Coroutine damageCanvasCoroutine;
     private Coroutine damagedColorCoroutine;
-    private bool wasAttach;
  
     void Awake()
 	{
@@ -49,7 +51,10 @@ public class PlayerController : MonoBehaviour, IDamageable
 		sprite = GetComponent<SpriteRenderer>();
 		animator = GetComponent<Animator>();
         interaction = GameManager.Instance.playerInteraction;
-        grappling = GameManager.Instance.grapplingHook;
+		grappling = GetComponent<GrapplingHook>();
+
+		// TODO: Test
+		testHook = GetComponent<TestGrapplingHook>();
 	}
 
 	void Start()
@@ -109,23 +114,19 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         float speed = GameManager.Instance.playerStatsRuntime.speed;
 
-        //if (!wasAttach && grappling.isAttach)       // 그래플 시작 순간
-        //    rigid.linearVelocity = new Vector2(0f, rigid.linearVelocity.y); // 입력 방향으로 쌓인 속도만 수평 가속도 제거, 수직 가속도 유지
+		// 훅 가속도
+		if (testHook.isAttach)
+		{
+			rigid.AddForce(new Vector2(inputVec.x * GameManager.Instance.playerStatsRuntime.hookSwingForce, 0f));
 
-        //if (grappling.isAttach)
-        //{
-        //    float hookSwingForce = GameManager.Instance.playerStatsRuntime.hookSwingForce;
-        //    rigid.AddForce(new Vector2(inputVec.x * hookSwingForce, 0f));
-
-        //    if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
-        //        rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
-        //}
-        //else
-        //{
-            float x = inputVec.x * speed * Time.deltaTime;
+			if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
+				rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
+		}
+		else
+		{
+			float x = inputVec.x * speed * Time.deltaTime;
             transform.Translate(x, 0, 0);
-        //}
-        //wasAttach = grappling.isAttach;     // 상태 저장 (맨 마지막!)
+		}
     }
 
     void HandleWalkSound()
