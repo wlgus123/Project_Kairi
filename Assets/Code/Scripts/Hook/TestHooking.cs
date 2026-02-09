@@ -63,15 +63,14 @@ public class TestHooking : MonoBehaviour
     private void Update()
     {
         HookMoveAction();       // 훅 오브젝트 이동 액션
-        RenderLine();			// 라인 그리기
-    }
+        RenderLine();           // 라인 그리기
+	}
 
     private void FixedUpdate()
-    {
-        // 줄 위치 업데이트
-        Simulate();
+	{
+		Simulate();             // 줄 위치 업데이트
 
-        for (int i = 0; i < constraintRuns; i++)
+		for (int i = 0; i < constraintRuns; i++)
             ApplyContraints();
 
         // 플레이어 위치 보정
@@ -90,8 +89,8 @@ public class TestHooking : MonoBehaviour
         }
     }
 
-    // 선 그리기
-    void RenderLine()
+	// 선 그리기
+	void RenderLine()
     {
         // 세그먼트 갯수와 세그먼트 리스트 갯수가 다를 경우 리스트 초기화
         if (segmentCnt != hookSegments.Count)
@@ -175,7 +174,7 @@ public class TestHooking : MonoBehaviour
 			// 훅 오브젝트 이동
 			transform.position = Vector2.MoveTowards(transform.position, destiny, speed);
 
-			// 줄 이동
+			// TODO: 줄 이동
 
 		}
 	}

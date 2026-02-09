@@ -25,10 +25,6 @@ public class TestGrapplingHook : MonoBehaviour
 	/* 임시 표시선 */
 	private LineRendererAtoB lineAtoB;  // 임시 표시선 관련 데이터
 
-	private void Awake()
-	{
-	}
-
 	private void Start()
 	{
 		/* 훅 정보 */
@@ -80,6 +76,7 @@ public class TestGrapplingHook : MonoBehaviour
 					hooking.lineLen = len;
 
 					isAttach = true;    // 훅 활성 여부 변경
+					
 				}
 			}
 		}

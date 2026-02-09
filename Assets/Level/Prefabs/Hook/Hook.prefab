@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2782950733400507741}
   - component: {fileID: 5810340183387548887}
-  - component: {fileID: 6919786790536683229}
   - component: {fileID: -159553973966897452}
   - component: {fileID: -7666463445354028900}
   m_Layer: 0
@@ -94,42 +93,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!58 &6919786790536683229
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 313841730352807346}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Radius: 0.755
 --- !u!114 &-159553973966897452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,9 +107,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TestHooking
   destiny: {x: 0, y: 0}
   speed: 1
-  constraintRuns: 100
-  gravityForce: {x: 0, y: -50}
-  dampingFactor: 0.9
   player: {fileID: 0}
   lastNode: {fileID: 0}
   line: {fileID: 0}
