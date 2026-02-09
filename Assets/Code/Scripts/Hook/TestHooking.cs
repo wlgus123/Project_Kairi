@@ -14,7 +14,7 @@ public class TestHooking : MonoBehaviour
 
     [Header("중력")]
     public Vector2 gravityForce = new Vector2(0f, -5f);     // 로프 중력값
-    public float dampingFactor = 0.99f;     // 제동 계수 (과도한 흔들림 제어용)
+    public float dampingFactor = 1f;     // 제동 계수 (과도한 흔들림 제어용)
 
     [Header("제약 조건")]
     public int constraintRuns = 50;    // 실행 횟수
@@ -118,8 +118,7 @@ public class TestHooking : MonoBehaviour
             Vector2 velocity = (segment.CurrPos - segment.OldPos) * dampingFactor;
 
             segment.OldPos = segment.CurrPos;
-            segment.CurrPos += velocity;
-            segment.CurrPos += gravityForce * Time.fixedDeltaTime * Time.fixedDeltaTime;
+            segment.CurrPos += velocity + gravityForce * Time.fixedDeltaTime * Time.fixedDeltaTime;
             hookSegments[i] = segment;  // 현재 세그먼트 리스트에 적용하기
         }
     }
