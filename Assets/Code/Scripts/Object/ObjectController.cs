@@ -13,11 +13,11 @@ public class ObjectController : MonoBehaviour
     public float explosionRadiaus = 2f;
     [Header("부서지는 오브젝트")]
     public bool crackObject = false;
+    [Header("크랙 스프라이트 단계")]
+    public Sprite[] crackSprites;
     [Header("최대 내구도")]
     public int maxCount = 3;
     public int count;          // 현재 내구도
-    [Header("닿으면 죽는 오브젝트")]
-    public bool playerDieObject = false;
     public bool isGrounded;
     public bool hasCollided = false;
     Rigidbody2D rigid;
@@ -28,7 +28,7 @@ public class ObjectController : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         count = maxCount;
-        UpdateColor();
+        UpdateCrackSprite();
     }
 
     void Start()
@@ -61,23 +61,25 @@ public class ObjectController : MonoBehaviour
             rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
     }
 
-    void UpdateColor()
+    void UpdateCrackSprite()
     {
-        float ratio = (float)count / maxCount;
+        if (!crackObject || crackSprites == null || crackSprites.Length == 0)
+            return;
 
-        if (ratio > 0.66f)          // 2/3 이상
-            sprite.color = Color.white;   // 정상
-        else if (ratio > 0.33f)     // 1/3 ~ 2/3
-            sprite.color = Color.yellow;
-        else if (ratio > 0f)        // 0 ~ 1/3
-            sprite.color = Color.red;
-        else                        // 파괴
+        if (count <= 0)
         {
             if (explosionObject)
                 Explode();
             else
                 Destroy(gameObject);
+            return;
         }
+
+        // 내구도 비율 스프라이트 인덱스
+        float ratio = (float)count / maxCount;
+        int index = Mathf.Clamp(Mathf.FloorToInt((1f - ratio) * crackSprites.Length), 0, crackSprites.Length - 1);
+
+        sprite.sprite = crackSprites[index];
     }
     private void OnDrawGizmosSelected()
     {
@@ -93,13 +95,7 @@ public class ObjectController : MonoBehaviour
         if (crackObject && collision.CompareTag(tagName.bullet))
         {
             count--;
-            UpdateColor();
-        }
-
-        if (playerDieObject && collision.gameObject.CompareTag(tagName.player))
-        {
-            GameManager.Instance.playerController.TakeDamage(1000000);
-            Debug.Log("낙사함 ㅅㄱ");
+            UpdateCrackSprite();
         }
     }
 
@@ -138,7 +134,7 @@ public class ObjectController : MonoBehaviour
         if (crackObject && collision.gameObject.CompareTag(tagName.throwingObj) || collision.gameObject.CompareTag(tagName.throwingEnemy))
         {
             count--;
-            UpdateColor();
+            UpdateCrackSprite();
         }
     }
 

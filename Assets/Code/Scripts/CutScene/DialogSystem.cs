@@ -9,7 +9,7 @@ public class DialogSystem : MonoBehaviour
     [Header("대화 말풍선")]
     public GameObject talkPanel;
     [Header("대화 텍스트")]
-    public TextMeshProUGUI talkText;
+    private TextMeshProUGUI talkText;
     [Header("텍스트 가리기용 파티클")]
     public ParticleSystem blackParticle;
 
@@ -56,6 +56,16 @@ public class DialogSystem : MonoBehaviour
 
     public int cutscenePlayerIndex = 0; // 컷신용 플레이어 대사 인덱스
     int cutsceneNPCIndex = 0;           // 컷신용 NPC 대사 인덱스
+
+    void Awake()
+    {
+        talkText = talkPanel.GetComponentInChildren<TextMeshProUGUI>(true);
+
+        if (talkText == null)
+        {
+            Debug.LogError("DialogSystem : talkPanel 자식에서 TextMeshProUGUI를 찾지 못했습니다.");
+        }
+    }
 
     void Update()
     {
