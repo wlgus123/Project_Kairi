@@ -41,6 +41,7 @@ public class LongRangeEnemy : MonoBehaviour
 
     private bool isAttacking = false;
     public bool isGrabbed = false;
+    bool facingRight = true;
 
     private void Start()
     {
@@ -59,6 +60,7 @@ public class LongRangeEnemy : MonoBehaviour
     private void FixedUpdate()
     {
         HandleRaycast();
+        HandleFlip();
         HandleGrabbed();
         HandleAttack();
     }
@@ -110,6 +112,26 @@ public class LongRangeEnemy : MonoBehaviour
         Debug.DrawRay(transform.position + downOffset, Vector2.right * distance, Color.red);
         Debug.DrawRay(transform.position + upOffset, Vector2.left * distance, Color.blue);
         Debug.DrawRay(transform.position + downOffset, Vector2.left * distance, Color.blue);
+    }
+    void HandleFlip()
+    {
+        if (targetPlayer == null) return;
+
+        float dir = targetPlayer.position.x - transform.position.x;
+
+        if (dir < 0 && !facingRight)
+            Flip();
+        else if (dir > 0 && facingRight)
+            Flip();
+    }
+
+    void Flip()
+    {
+        facingRight = !facingRight;
+
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
     }
 
     public void HandleGrabbed()

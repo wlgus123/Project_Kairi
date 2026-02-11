@@ -81,7 +81,10 @@ public class ObjectController : MonoBehaviour
             if (explosionObject)
                 Explode();
             else
-                Destroy(gameObject);
+            {
+                ownerSpawner?.OnObjectDestroyed(this);
+                GameManager.Instance.poolManager.ReturnToPool(gameObject);
+            }
             return;
         }
 
@@ -167,8 +170,9 @@ public class ObjectController : MonoBehaviour
                 }
             }
         }
-        StartCoroutine(SpawnExplosionEffect(explosionPos));
-        Destroy(gameObject);
+        GameManager.Instance.StartCoroutine(SpawnExplosionEffect(explosionPos));
+        ownerSpawner?.OnObjectDestroyed(this);
+        GameManager.Instance.poolManager.ReturnToPool(gameObject);
     }
     IEnumerator SpawnExplosionEffect(Vector2 position)
     {

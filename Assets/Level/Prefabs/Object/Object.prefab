@@ -61,7 +61,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: fa00e3d763d5854429c4c1dd75e19ae8, type: 2}
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,8 +84,8 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0, g: 0.97940683, b: 1, a: 1}
+  m_Sprite: {fileID: 4723107735738678597, guid: 5bdd2bc13e4a64345841d46d3dbb1120, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -137,9 +137,9 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 3819339655105006539, guid: 94e30e35b8ef3fb4a890f6f78b5c13ca, type: 3}
   explosionRadiaus: 3
   crackObject: 0
+  crackSprites: []
   maxCount: 20
   count: 0
-  playerDieObject: 0
   isGrounded: 0
   hasCollided: 0
 --- !u!58 &909299561811288268
