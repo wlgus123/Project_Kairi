@@ -84,6 +84,12 @@ public class PlayerController : MonoBehaviour, IDamageable
 	{
         SetPlayerState(playerState.Idle);
 	}
+    void FixedUpdate()
+    {
+        if (interaction && interaction.GetIsAction()) return;
+        HandleMove();   // 플레이어 이동
+        HandleFlip();   // 방향 플립
+    }
 
     void Update()
     {
@@ -100,13 +106,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         UpdateSlowGauge();	        // 슬로우 게이지 업데이트
     }
 
-    void FixedUpdate()
-	{
-		if (interaction && interaction.GetIsAction()) return;
-        HandleMove();   // 플레이어 이동
-        HandleFlip();   // 방향 플립
-    }
-
 	void OnMove(InputValue value)
 	{
         inputVec = value.Get<Vector2>();
@@ -121,6 +120,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         rigid.AddForce(Vector2.up * GameManager.Instance.playerStatsRuntime.jumpForce, ForceMode2D.Impulse);
         isGrounded = false;
     }
+
     public void HandleMove()
     {
         float speed = GameManager.Instance.playerStatsRuntime.speed;
@@ -282,6 +282,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     void UpdateSlowGauge()      // 슬로우 게이지 업데이트
     {
+        if (slowGaugeSlider == null) return;
         if (isSlow)
         {
             slowGauge -= slowDecreaseRate * Time.unscaledDeltaTime;

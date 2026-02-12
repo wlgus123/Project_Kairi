@@ -12,7 +12,6 @@ public class GameManager : MonoSingleton<GameManager> // 싱글톤 사용
 
     [Header("CutScene 관련 코드")]
     public DialogSystem dialogSystem;
-    public GlitchDialog glitchDialog;
 
     [Header("카메라 관련 코드")]
     public CameraShake cameraShake;
