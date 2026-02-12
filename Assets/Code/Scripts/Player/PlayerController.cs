@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,6 +25,9 @@ public class PlayerController : MonoBehaviour, IDamageable
     private float curTime;
     [Header("땅 체크")]
     public bool isGrounded;
+    public Transform pos;
+    public LayerMask isLayer;
+    public float checkRadious;
     [Header("충돌 체크")]
     public bool hasCollided = false;
     [Header("걷기 사운드")]
@@ -31,8 +35,29 @@ public class PlayerController : MonoBehaviour, IDamageable
     private float walkSoundTimer = 0f;
     public bool isWalking = false;
 
-	// TODO: Test
-	private TestGrapplingHook testHook;
+    [Header("슬로우 게이지 UI")]
+    public Slider slowGaugeSlider;
+    [Header("슬로우 비율")]
+    public float slowFactor = 0.3f;
+    [Header("슬로우 게이지 최대치")]
+    public float slowMaxGauge = 3f;
+    [Header("슬로우 게이지 현재치")]
+    public float slowGauge = 3f;
+    [Header("슬로우 게이지 감소 속도")]
+    public float slowDecreaseRate = 1f;
+    [Header("슬로우 게이지 회복 속도")]
+    public float slowRecoverRate = 0.5f;
+    [Header("슬로우 상태")]
+    public bool isSlow = false;
+
+    [Header("적들")]
+    public List<SpriteRenderer> enemySprites = new List<SpriteRenderer>();
+
+    [Header("배경들")]
+    public List<SpriteRenderer> backgroundSprites = new List<SpriteRenderer>();
+
+    // TODO: Test
+    private TestGrapplingHook testHook;
 
     public Vector2 inputVec;
     Rigidbody2D rigid;
@@ -57,7 +82,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	void Start()
 	{
-		isGrounded = true;
         SetPlayerState(playerState.Idle);
 	}
 
@@ -71,6 +95,9 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         UpdateAnimation();          // 애니메이션
         HandleWalkSound();          // 걷기 사운드
+
+        HandleSlowMode();           // 슬로우 모드
+        UpdateSlowGauge();	        // 슬로우 게이지 업데이트
     }
 
     void FixedUpdate()
@@ -94,25 +121,24 @@ public class PlayerController : MonoBehaviour, IDamageable
         rigid.AddForce(Vector2.up * GameManager.Instance.playerStatsRuntime.jumpForce, ForceMode2D.Impulse);
         isGrounded = false;
     }
-
-    public void HandleMove()    // 플레이어 이동
+    public void HandleMove()
     {
         float speed = GameManager.Instance.playerStatsRuntime.speed;
 
-		// 훅 가속도
-		if (testHook.isAttach && !isGrounded)
-		{
-			rigid.AddForce(new Vector2(inputVec.x * GameManager.Instance.playerStatsRuntime.hookSwingForce, 0f));
+        if (float.IsNaN(inputVec.x) || float.IsNaN(speed))
+            return;
 
-			if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
-				rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
-		}
-		else
-		{
-			float x = inputVec.x * speed * Time.deltaTime;
-			transform.Translate(x, 0, 0);
-		}
-	}
+        if (testHook.isAttach && !isGrounded)
+        {
+            rigid.AddForce(new Vector2(
+                inputVec.x * GameManager.Instance.playerStatsRuntime.hookSwingForce, 0f));
+        }
+        else
+        {
+            float x = inputVec.x * speed * Time.deltaTime;
+            transform.Translate(x, 0, 0);
+        }
+    }
 
     void HandleWalkSound()
     {
@@ -194,19 +220,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public void CheckGround(Collision2D collision)      // 바닥 체크
     {
-		foreach (var contact in collision.contacts)
-		{
-			if (contact.normal.y > 0.7f &&
-				contact.point.y < transform.position.y)
-			{
-				isGrounded = true;
-				break;
-			}
-		}
-		hasCollided = true;     // 충돌 체크
-
-        if (isGrounded && rigid.linearVelocityY < 0f)       // y값 보정 (바닥 뚫림 방지)
-            rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
+        isGrounded = Physics2D.OverlapCircle(pos.position, checkRadious, isLayer);
 	}
 
 	void SetPlayerState(playerState state)      // 플레이어 상태 변경
@@ -256,5 +270,118 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         if (collision.gameObject.CompareTag(tagName.ground))
             isGrounded = false;
+    }
+    public void HandleSlowMode()        // 슬로우 모드
+    {
+        if (Keyboard.current.leftShiftKey.wasPressedThisFrame)
+        {
+            if (!isSlow && slowGauge > 0f) StartSlow();
+            else StopSlow();
+        }
+    }
+
+    void UpdateSlowGauge()      // 슬로우 게이지 업데이트
+    {
+        if (isSlow)
+        {
+            slowGauge -= slowDecreaseRate * Time.unscaledDeltaTime;
+
+            if (slowGauge <= 0f)
+            {
+                slowGauge = 0f;
+                StopSlow(); // 자동 해제
+            }
+        }
+        else
+        {
+            slowGauge += slowRecoverRate * Time.unscaledDeltaTime;
+            if (slowGauge > slowMaxGauge)
+                slowGauge = slowMaxGauge;
+        }
+        slowGaugeSlider.value = slowGauge / slowMaxGauge;
+    }
+
+    void StopSlow()     // 슬로우 효과 종료
+    {
+        if (!isSlow) return;
+        isSlow = false;
+        Time.timeScale = 1f;            // 시간 원래대로
+        Time.fixedDeltaTime = 0.02f;
+
+        ApplyNormalColor();
+    }
+
+    void StartSlow()    // 슬로우 효과 시작
+    {
+        if (isSlow) return;
+        isSlow = true;
+        Time.timeScale = slowFactor;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+        ApplySlowColor();
+    }
+
+    void ApplySlowColor()   // 슬로우 ON
+    {
+        //ApplySlowColorToPlayer();
+        //ApplySlowColorToEnemies();
+        ApplySlowColorToBackgrounds();
+    }
+
+    void ApplyNormalColor() // 슬로우 OFF
+    {
+        if (sprite)
+            sprite.color = Color.white;
+
+        foreach (var enemy in enemySprites)
+            if (enemy)
+                enemy.color = Color.white;
+
+        foreach (var bg in backgroundSprites)
+            if (bg)
+                bg.color = Color.white;
+    }
+
+    void ApplySlowColorToPlayer()
+    {
+        if (sprite)
+            sprite.color = BoostSaturation(sprite.color);
+    }
+
+    void ApplySlowColorToEnemies()
+    {
+        foreach (var enemy in enemySprites)
+            if (enemy)
+                enemy.color = BoostSaturation(enemy.color);
+    }
+
+    void ApplySlowColorToBackgrounds()
+    {
+        foreach (var bg in backgroundSprites)
+            if (bg)
+                bg.color = ReduceSaturation(bg.color);
+    }
+
+    Color BoostSaturation(Color original)
+    {
+        return original;
+    }
+
+    Color ReduceSaturation(Color original)  // 채도 감소
+    {
+        float h, s, v;
+        Color.RGBToHSV(original, out h, out s, out v);
+
+        s = 0f; // 채도 완전 제거 -> 회색 계열
+        v *= 0.6f;  // 약간 어둡게
+
+        Color c = Color.HSVToRGB(h, s, v);
+
+        // ★ 톤을 조금 더 죽여서 배경이 확실히 흐려짐
+        c.r *= 0.9f;
+        c.g *= 0.9f;
+        c.b *= 0.9f;
+
+        return c;
     }
 }
