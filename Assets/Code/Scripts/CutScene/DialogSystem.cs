@@ -6,6 +6,9 @@ using UnityEngine.InputSystem;
 
 public class DialogSystem : MonoBehaviour
 {
+    [Header("TV Global Volume 오브젝트")]
+    public GameObject tvGlobalVolume;
+    public bool isTVGlitch = false;
     [Header("대화 말풍선")]
     public GameObject talkPanel;
     [Header("대화 텍스트")]
@@ -86,6 +89,7 @@ public class DialogSystem : MonoBehaviour
         {
             StopCoroutine(typingCoroutine);
             ShowFullText(dialogList[currentDialogIndex]);
+            SetTVGlobalVolume(false);
         }
         else
         {
@@ -148,6 +152,7 @@ public class DialogSystem : MonoBehaviour
             // 대화 종료
             isAction = false;
             talkPanel.SetActive(false);
+            SetTVGlobalVolume(false);
             StopAllCoroutines();
             ClearHiddenParticles();
             return;
@@ -155,7 +160,11 @@ public class DialogSystem : MonoBehaviour
 
         StartDialog(currentDialogIndex);
     }
-
+    void SetTVGlobalVolume(bool on)
+    {
+        if (tvGlobalVolume != null && isTVGlitch == true)
+            tvGlobalVolume.SetActive(on);
+    }
     public void Action()
     {
         isAction = !isAction;
@@ -185,6 +194,7 @@ public class DialogSystem : MonoBehaviour
     IEnumerator TypeText(string text)
     {
         isTyping = true;
+        SetTVGlobalVolume(true);
         talkText.text = "";
 
         bigCharStates.Clear();
@@ -238,6 +248,7 @@ public class DialogSystem : MonoBehaviour
         }
 
         isTyping = false;
+        SetTVGlobalVolume(false);
     }
 
     IEnumerator AnimateText()
