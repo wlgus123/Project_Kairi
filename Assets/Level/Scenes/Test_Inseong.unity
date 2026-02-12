@@ -12331,7 +12331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 965c5872cefea08498c9f2f304bae2e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightFlicker
-  cycleTime: 5
+  cycleTime: 0.2
   blinkInterval: 0.1
   lightOnIntensity: 5
 --- !u!1 &339877596
@@ -25285,7 +25285,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1075623856}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
@@ -38746,6 +38746,10 @@ PrefabInstance:
     - target: {fileID: 8171373853705526964, guid: cc8fa67c5bdc97a408565401c372cb67, type: 3}
       propertyPath: ShapeModule.m_Scale.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8171373853705526964, guid: cc8fa67c5bdc97a408565401c372cb67, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 0.07
       objectReference: {fileID: 0}
     - target: {fileID: 8171373853705526964, guid: cc8fa67c5bdc97a408565401c372cb67, type: 3}
       propertyPath: EmissionModule.rateOverTime.minScalar

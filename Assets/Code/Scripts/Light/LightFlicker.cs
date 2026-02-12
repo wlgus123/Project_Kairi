@@ -27,6 +27,11 @@ public class LightFlicker : MonoBehaviour
             // 2번 깜빡
             for (int i = 0; i < 2; i++)
             {
+                light2D.color = new Color(
+                    Random.value,
+                    Random.value,
+                    Random.value
+                );
                 light2D.intensity = 0f;
                 yield return new WaitForSeconds(blinkInterval);
                 light2D.intensity = lightOnIntensity;

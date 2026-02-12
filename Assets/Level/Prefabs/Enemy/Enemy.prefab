@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 9208315758566752643}
   - component: {fileID: 5513257364536213435}
   - component: {fileID: 2003018862398154516}
+  - component: {fileID: 539489379584834849}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Enemy
@@ -262,3 +263,16 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &539489379584834849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6538411235587137134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09b981f671428f74e8f57a1fa2d6f7a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyCameraMark
+  markerPrefab: {fileID: 685821831552522956, guid: 6a6182231a1333d4f8c850b67994c2f6, type: 3}
