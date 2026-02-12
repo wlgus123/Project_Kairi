@@ -8,6 +8,8 @@ public class GlitchDialog : MonoBehaviour
 {
     [Header("TV Global Volume 오브젝트")]
     public GameObject tvGlobalVolume;
+    [Header("대화 말풍선")]
+    public GameObject talkPanel;
     [Header("대화 텍스트")]
     public TextMeshProUGUI talkText;
     [Header("텍스트 웨이브")]
@@ -161,14 +163,14 @@ public class GlitchDialog : MonoBehaviour
     public void StartCutscenePlayerDialog()
     {
         isAction = true;
-
+        talkPanel.SetActive(true);
         StartDialog(cutscenePlayerIndex);
     }
 
     public void StartCutsceneNPCDialog()
     {
         isAction = true;
-
+        talkPanel.SetActive(true);
         StartDialog(cutsceneNPCIndex);
     }
 
@@ -204,6 +206,7 @@ public class GlitchDialog : MonoBehaviour
         isAction = false;
         talkText.text = "";
         SetTVGlobalVolume(false);
+        talkPanel.SetActive(false);
         StopAllCoroutines();
     }
 
