@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour, IDamageable
     private float curTime;
     [Header("땅 체크")]
     public bool isGrounded;
+    public Transform pos;
+    public LayerMask isLayer;
+    public float checkRadious;
     [Header("충돌 체크")]
     public bool hasCollided = false;
     [Header("걷기 사운드")]
@@ -57,7 +60,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	void Start()
 	{
-		isGrounded = true;
         SetPlayerState(playerState.Idle);
 	}
 
@@ -94,25 +96,24 @@ public class PlayerController : MonoBehaviour, IDamageable
         rigid.AddForce(Vector2.up * GameManager.Instance.playerStatsRuntime.jumpForce, ForceMode2D.Impulse);
         isGrounded = false;
     }
-
-    public void HandleMove()    // 플레이어 이동
+    public void HandleMove()
     {
         float speed = GameManager.Instance.playerStatsRuntime.speed;
 
-		// 훅 가속도
-		if (testHook.isAttach && !isGrounded)
-		{
-			rigid.AddForce(new Vector2(inputVec.x * GameManager.Instance.playerStatsRuntime.hookSwingForce, 0f));
+        if (float.IsNaN(inputVec.x) || float.IsNaN(speed))
+            return;
 
-			if (rigid.linearVelocity.magnitude > GameManager.Instance.playerStatsRuntime.maxSwingSpeed)
-				rigid.linearVelocity = rigid.linearVelocity.normalized * GameManager.Instance.playerStatsRuntime.maxSwingSpeed;
-		}
-		else
-		{
-			float x = inputVec.x * speed * Time.deltaTime;
-			transform.Translate(x, 0, 0);
-		}
-	}
+        if (testHook.isAttach && !isGrounded)
+        {
+            rigid.AddForce(new Vector2(
+                inputVec.x * GameManager.Instance.playerStatsRuntime.hookSwingForce, 0f));
+        }
+        else
+        {
+            float x = inputVec.x * speed * Time.deltaTime;
+            transform.Translate(x, 0, 0);
+        }
+    }
 
     void HandleWalkSound()
     {
@@ -194,19 +195,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public void CheckGround(Collision2D collision)      // 바닥 체크
     {
-		foreach (var contact in collision.contacts)
-		{
-			if (contact.normal.y > 0.7f &&
-				contact.point.y < transform.position.y)
-			{
-				isGrounded = true;
-				break;
-			}
-		}
-		hasCollided = true;     // 충돌 체크
-
-        if (isGrounded && rigid.linearVelocityY < 0f)       // y값 보정 (바닥 뚫림 방지)
-            rigid.linearVelocity = new Vector2(rigid.linearVelocity.x, 0f);
+        isGrounded = Physics2D.OverlapCircle(pos.position, checkRadious, isLayer);
 	}
 
 	void SetPlayerState(playerState state)      // 플레이어 상태 변경
