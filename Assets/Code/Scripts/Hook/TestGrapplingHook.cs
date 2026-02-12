@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 using tagName = Globals.TagName;
+using UnityEngine.Rendering.Universal;
 
 public class TestGrapplingHook : MonoBehaviour
 {
@@ -18,13 +18,16 @@ public class TestGrapplingHook : MonoBehaviour
 	/* 카메라 */
 	private Camera mainCam;     // 메인 카메라
 
-	/* 훅 정보 */
+	/* 훅 */
 	[HideInInspector] public bool isAttach;     // 훅 사용 여부
 	[HideInInspector] public bool isGrab;       // 훅 잡음 여부
 	private GameObject curHook;                 // 현재 훅
 	private float distance;                     // 훅 길이
-	private List<Transform> hookingList = new List<Transform>();    // 그래플링 훅으로 잡은 요소 리스트
 	private bool isLineMax;                     // 훅 길이 최대 여부
+	private List<Transform> hookingList = new List<Transform>();    // 그래플링 훅으로 잡은 요소 리스트
+
+	private float accumulatedAngle = 0f;        // 누적 회전량(게이지 수치)
+	private float maxAngle;                     // maxTurns 회전 시 최대 각도(= 360 * maxTurns)
 
 	/* 임시 표시선 */
 	private LineRendererAtoB lineAtoB;  // 임시 표시선 관련 데이터
@@ -32,6 +35,25 @@ public class TestGrapplingHook : MonoBehaviour
 	/* 사운드 */
 	private bool hasPlayedAttachSound = false;
 	private bool isPlayedDraftSound = false;
+
+	/* 부스트 */
+	private Coroutine currentBoost;         // 현재 부스트 코루틴
+	public float boostMultiplier = 1.5f;    // 속도 증가 배율
+	public float boostDuration = 0.5f;      // Boost 지속 시간
+
+	/* 슬로우모션 */
+	[Header("슬로우 비율")]
+	public float slowFactor;            // 슬로우 비율
+	[Header("슬로우 복귀 시간")]
+	public float slowLength;            // 슬로우 복귀 시간
+	private ColorAdjustments colorAdjustments;
+	private SpriteRenderer sprite;
+	private Coroutine slowCoroutine;    // 슬로우 효과 코루틴
+
+	private void Awake()
+	{
+		sprite = GetComponent<SpriteRenderer>();
+	}
 
 	private void Start()
 	{
@@ -58,51 +80,51 @@ public class TestGrapplingHook : MonoBehaviour
 		MoveElementPos();       // 잡힌 요소의 좌표 이동
 	}
 
-	// 훅 사용
+	// 훅 사용 (후킹, 해제, 던지기)
 	private void ActiveHook()
 	{
-		Vector3 mouseScreen = Mouse.current.position.ReadValue();               // 스크린 좌표 구하기
-		mouseScreen.z = Mathf.Abs(mainCam.transform.position.z);                // z값 보정
-		Vector2 worldPos = mainCam.ScreenToWorldPoint(mouseScreen);             // 월드 좌표
-		Vector2 dir = (worldPos - (Vector2)transform.position).normalized;      // 광선 방향
-
-		// 좌클릭 시
-		if (Mouse.current.leftButton.wasPressedThisFrame)
+		// 훅이 활성화되지 않고 좌클릭 했을 때
+		if (!isAttach && Mouse.current.leftButton.wasPressedThisFrame)
 		{
-			if (!isAttach)  // 훅이 활성화되지 않았을 경우
+			Vector2 worldPos = mainCam.ScreenToWorldPoint(Mouse.current.position.ReadValue());  // 월드 좌표
+			Vector2 dir = (worldPos - (Vector2)transform.position).normalized;                  // 광선 방향
+			LayerMask mask = ~LayerMask.GetMask(tagName.player);                                // 레이케스트 땅만 맞출 수 있도록 마스크 생성
+			RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);      // 자기 위치에서 dir 방향으로 광선 발사
+
+			hook.GetComponent<TestHooking>().HookMoveAction();      // 훅 움직이는 액션
+
+			if (hit)
 			{
-				LayerMask mask = ~LayerMask.GetMask(tagName.player);                             // 레이케스트 땅만 맞출 수 있도록 마스크 생성
-				RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distance, mask);  // 자기 위치에서 dir 방향으로 광선 발사
-
-				hook.GetComponent<TestHooking>().HookMoveAction();      // 훅 움직이는 액션
-
-				if (hit)
+				// 효과음 재생
+				if (!hasPlayedAttachSound)      // 갈고리 or 적에 처음 붙었을 때
 				{
-					// 부딪힌 요소가 적 or 던져지는 적 or 오브젝트 or 던져지는 오브젝트일 경우
-					if (!isGrab && (hit.collider.CompareTag(tagName.enemy) || hit.collider.CompareTag(tagName.throwingEnemy)
-						|| hit.collider.CompareTag(tagName.obj) || hit.collider.CompareTag(tagName.throwingObj)))
-					{
-						AttachElement(hit.transform);   // 요소 잡기
-						isGrab = true;
-					}
-					// 땅과 부딪혔을 때
-					else if (hit.collider.CompareTag(tagName.ground))
-					{
-						TestHooking hooking;
-						Vector2 destiny = hit.point;    // Raycast로 쐈을 때 충돌된 위치
-						curHook = Instantiate(hook, transform.position, Quaternion.identity);   // 플레이어 위치에 훅 생성
+					GameManager.Instance.audioManager.HookAttachSound(1f);
+					hasPlayedAttachSound = true;
+				}
 
-						hooking = curHook.GetComponent<TestHooking>();
-						hooking.destiny = destiny;
-						curHook.SetActive(true);
+				// 부딪힌 요소가 적 or 던져지는 적 or 오브젝트 or 던져지는 오브젝트일 경우
+				if (!isGrab && (hit.collider.CompareTag(tagName.enemy) || hit.collider.CompareTag(tagName.throwingEnemy)
+					|| hit.collider.CompareTag(tagName.obj) || hit.collider.CompareTag(tagName.throwingObj)))
+				{
+					AttachElement(hit.transform);   // 요소 잡기
+					isGrab = true;
+				}
+				// 땅과 부딪혔을 때
+				else if (hit.collider.CompareTag(tagName.ground))
+				{
+					TestHooking hooking;
+					Vector2 destiny = hit.point;    // Raycast로 쐈을 때 충돌된 위치
+					curHook = Instantiate(hook, transform.position, Quaternion.identity);   // 플레이어 위치에 훅 생성
 
-						// 점 사이 거리를 고려하여 거리만큼의 점 갯수 구하기
-						float len = Vector2.Distance(transform.position, destiny);
-						hooking.lineLen = len;
+					hooking = curHook.GetComponent<TestHooking>();
+					hooking.destiny = destiny;
+					curHook.SetActive(true);
 
-						isAttach = true;    // 훅 활성 여부 변경
-					}
+					// 점 사이 거리를 고려하여 거리만큼의 점 갯수 구하기
+					float len = Vector2.Distance(transform.position, destiny);
+					hooking.lineLen = len;
 
+					isAttach = true;    // 훅 활성 여부 변경
 				}
 			}
 		}
@@ -115,19 +137,29 @@ public class TestGrapplingHook : MonoBehaviour
 				Destroy(curHook);
 			}
 
+			// 슬로우모션
+			if (slowCoroutine != null)
+				StopCoroutine(slowCoroutine);
+
+			slowCoroutine = StartCoroutine(SlowRoutine());
+			Boost(accumulatedAngle / maxAngle);        // 0~1 만큼 부스트
+
 			isAttach = false;
 			isLineMax = false;
+			hasPlayedAttachSound = false;
 		}
 		// 요소를 잡고 있고, 마우스를 우클릭 했을 경우
 		else if (isGrab && Mouse.current.rightButton.wasPressedThisFrame)
 		{
-			// 적 던지기
-			ThrowElement(hookingList[0], dir);
+			Vector2 worldPos = mainCam.ScreenToWorldPoint(Mouse.current.position.ReadValue());             // 월드 좌표
+			Vector2 dir = (worldPos - (Vector2)transform.position).normalized;      // 광선 방향
+			ThrowElement(hookingList[0], dir);  // 적 던지기
 			isGrab = false;
 		}
 	}
 
-	public void CursorPathMarking()     // 임시 표시선 그리기
+	// 임시 표시선 그리기
+	public void CursorPathMarking()
 	{
 		if (Mouse.current == null) return;
 		if (GameManager.Instance.dialogSystem && GameManager.Instance.dialogSystem.isAction) return;    // 상호작용 중일 경우 표시선 그리지 않음
@@ -168,13 +200,8 @@ public class TestGrapplingHook : MonoBehaviour
 			lineAtoB.Stop();
 	}
 
-	void MoveElementPos()   // 적 및 오브젝트 위치 이동하기
-	{
-		if (!isGrab) return;
-		MovePos();
-	}
-
-	public void AttachElement(Transform element)    // 잡기
+	// 잡기
+	public void AttachElement(Transform element)
 	{
 		if (hookingList.Contains(element) || isGrab) return;
 
@@ -198,7 +225,7 @@ public class TestGrapplingHook : MonoBehaviour
 		if (elementCol != null && playerCol != null)            // 플레이어가 자기 자신을 잡았을 때 -> 충돌 무시
 			Physics2D.IgnoreCollision(elementCol, playerCol, true);
 
-		if (rb != null)                                         // Rigidbody가 있으면 Kinematic으로
+		if (rb != null)                                     // Rigidbody가 있으면 Kinematic으로
 			rb.bodyType = RigidbodyType2D.Kinematic;
 
 		element.SetParent(transform);   // 플레이어 자식으로
@@ -207,7 +234,8 @@ public class TestGrapplingHook : MonoBehaviour
 		isGrab = true;
 	}
 
-	public void ThrowElement(Transform element, Vector2 throwDir)   // 던지기
+	// 던지기
+	public void ThrowElement(Transform element, Vector2 throwDir)
 	{
 		if (!hookingList.Contains(element)) return;
 		LongRangeEnemy longRangeEnemy = element.GetComponent<LongRangeEnemy>();
@@ -250,7 +278,8 @@ public class TestGrapplingHook : MonoBehaviour
 		}
 	}
 
-	public void MovePos()   // 위치 이동하기(그래플링 훅으로 잡았을 경우만)
+	// 위치 이동하기(그래플링 훅으로 잡았을 경우만)
+	public void MoveElementPos()
 	{
 		if (!isGrab) return;
 
@@ -264,5 +293,63 @@ public class TestGrapplingHook : MonoBehaviour
 			offset.x = playerSprite.flipX ? -Mathf.Abs(followOffset.x) : Mathf.Abs(followOffset.x); // followOffset을 기준으로 x를 왼쪽/오른쪽 방향 맞춤
 			hookingList[i].localPosition = offset; // 부모 transform 기준 localPosition
 		}
+	}
+
+	// 일시적 부스트 효과
+	public void Boost(float gaugePercent)
+	{
+		if (currentBoost != null)
+			StopCoroutine(currentBoost);
+
+		currentBoost = StartCoroutine(BoostRoutine(gaugePercent));
+	}
+
+	// 슬로우 효과 코루틴
+	private IEnumerator SlowRoutine()
+	{
+		sprite.color = Color.red;
+
+		if (colorAdjustments != null)
+			colorAdjustments.saturation.value = -50f;
+
+		Time.timeScale = slowFactor;
+		Time.fixedDeltaTime = 0.02f * Time.timeScale;
+		float elapsed = 0f;
+
+		while (elapsed < slowLength)
+		{
+			if (GameManager.Instance.playerController.isGrounded || isAttach) break;
+
+			elapsed += Time.unscaledDeltaTime;
+			yield return null;
+		}
+
+		Time.timeScale = 1f;
+		Time.fixedDeltaTime = 0.02f;
+		sprite.color = Color.white;
+
+		if (colorAdjustments != null)
+			colorAdjustments.saturation.value = 0f;
+	}
+
+	// 부스트 효과 코루틴
+	private IEnumerator BoostRoutine(float gaugePercent)
+	{
+		var stats = GameManager.Instance.playerStatsRuntime;
+		float originalSpeed = stats.speed;
+		float boostFactor = 1 + (boostMultiplier - 1) * gaugePercent;
+		stats.speed = originalSpeed * boostFactor;
+		float time = 0f;
+
+		while (time < boostDuration)
+		{
+			if (GameManager.Instance.playerController.hasCollided) break;
+
+			time += Time.deltaTime;
+			yield return null;
+		}
+
+		stats.speed = originalSpeed;
+		currentBoost = null;
 	}
 }

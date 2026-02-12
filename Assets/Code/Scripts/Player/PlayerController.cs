@@ -63,7 +63,12 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     void Update()
     {
-        HandleTimelinePlaying();    // 타임라인 중 못 움직임
+        if (TimelineController.isTimelinePlaying)
+        {
+            inputVec = Vector2.zero;
+            return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
+        }
+
         UpdateAnimation();          // 애니메이션
         HandleWalkSound();          // 걷기 사운드
     }
@@ -77,21 +82,12 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	void OnMove(InputValue value)
 	{
-        if (TimelineController.isTimelinePlaying)
-        {
-            inputVec = Vector2.zero;
-            return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
-        }
         inputVec = value.Get<Vector2>();
 	}
 
     void OnJump()
     {
-        if (TimelineController.isTimelinePlaying)
-        {
-            inputVec = Vector2.zero;
-            return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
-        }
+		if (testHook.isAttach) return;	// 플레이어가 훅을 사용 중일 경우 리턴
         if (!isGrounded) return;    // 플레이어가 바닥이 아닐 경우
 
         GameManager.Instance.audioManager.PlayJumpSound(1f);
@@ -99,21 +95,12 @@ public class PlayerController : MonoBehaviour, IDamageable
         isGrounded = false;
     }
 
-    public void HandleTimelinePlaying()
-    {
-        if (TimelineController.isTimelinePlaying)
-        {
-            inputVec = Vector2.zero;
-            return;   // 컷씬 재생 중일 때는 플레이어 컨트롤 불가
-        }
-    }
-
     public void HandleMove()    // 플레이어 이동
     {
         float speed = GameManager.Instance.playerStatsRuntime.speed;
 
 		// 훅 가속도
-		if (testHook.isAttach)
+		if (testHook.isAttach && !isGrounded)
 		{
 			rigid.AddForce(new Vector2(inputVec.x * GameManager.Instance.playerStatsRuntime.hookSwingForce, 0f));
 
@@ -215,7 +202,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 				isGrounded = true;
 				break;
 			}
-		}	
+		}
 		hasCollided = true;     // 충돌 체크
 
         if (isGrounded && rigid.linearVelocityY < 0f)       // y값 보정 (바닥 뚫림 방지)
