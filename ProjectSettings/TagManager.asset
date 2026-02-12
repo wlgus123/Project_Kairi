@@ -16,6 +16,7 @@ TagManager:
   - GroundCheck
   - ThrowingObject
   - Bullet
+  - LaserNot
   layers:
   - Default
   - TransparentFX
