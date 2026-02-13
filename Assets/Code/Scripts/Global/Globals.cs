@@ -42,5 +42,7 @@ public class Globals
     public static class HookValue
     {
         public static readonly float segmentLen = 0.225f;
+		public static readonly int minHookLen = 2;
+		public static readonly int maxHookLen = 9;
     }
 }
