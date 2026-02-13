@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 
 using tagName = Globals.TagName;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 public class TestGrapplingHook : MonoBehaviour
 {
@@ -19,22 +20,21 @@ public class TestGrapplingHook : MonoBehaviour
 	private Camera mainCam;     // 메인 카메라
 
 	/* 훅 */
-	[HideInInspector] public bool isAttach;     // 훅 사용 여부
-	[HideInInspector] public bool isGrab;       // 훅 잡음 여부
-	private GameObject curHook;                 // 현재 훅
-	private float distance;                     // 훅 길이
-	private bool isLineMax;                     // 훅 길이 최대 여부
+	[HideInInspector] public bool isAttach;			// 훅 사용 여부
+	[HideInInspector] public bool isGrab;			// 훅 잡음 여부
+	[HideInInspector] public GameObject curHook;	// 현재 훅
+	private float distance;		// 훅 길이
+	private bool isLineMax;		// 훅 길이 최대 여부
 	private List<Transform> hookingList = new List<Transform>();    // 그래플링 훅으로 잡은 요소 리스트
 
-	private float accumulatedAngle = 0f;        // 누적 회전량(게이지 수치)
-	private float maxAngle;                     // maxTurns 회전 시 최대 각도(= 360 * maxTurns)
+	/* 플레이어 */
+	private PlayerController player;
 
 	/* 임시 표시선 */
 	private LineRendererAtoB lineAtoB;  // 임시 표시선 관련 데이터
 
 	/* 사운드 */
 	private bool hasPlayedAttachSound = false;
-	private bool isPlayedDraftSound = false;
 
 	/* 부스트 */
 	private Coroutine currentBoost;         // 현재 부스트 코루틴
@@ -48,7 +48,6 @@ public class TestGrapplingHook : MonoBehaviour
 	public float slowLength;            // 슬로우 복귀 시간
 	private ColorAdjustments colorAdjustments;
 	private SpriteRenderer sprite;
-	private Coroutine slowCoroutine;    // 슬로우 효과 코루틴
 
 	private void Awake()
 	{
@@ -57,9 +56,12 @@ public class TestGrapplingHook : MonoBehaviour
 
 	private void Start()
 	{
-		/* 훅 정보 */
+		/* 훅 */
 		isAttach = false;
 		isGrab = false;
+
+		/* 플레이어 */
+		player = GameManager.Instance.playerController;
 
 		/* 임시 표시선 */
 		lineAtoB = Instantiate(visualizerLine).GetComponent<LineRendererAtoB>();    // 인스턴스화 시킨 오브젝트의 스크립트 컴포넌트 저장하기
@@ -98,7 +100,7 @@ public class TestGrapplingHook : MonoBehaviour
 				// 효과음 재생
 				if (!hasPlayedAttachSound)      // 갈고리 or 적에 처음 붙었을 때
 				{
-					GameManager.Instance.audioManager.HookAttachSound(1f);
+					GameManager.Instance.audioManager.HookShootSound(0.7f); // 갈고리 발사 효과음
 					hasPlayedAttachSound = true;
 				}
 
@@ -129,24 +131,25 @@ public class TestGrapplingHook : MonoBehaviour
 			}
 		}
 		// 좌클릭 해제시
-		else if (isAttach && Mouse.current.leftButton.wasReleasedThisFrame)
+		else if (Mouse.current.leftButton.wasReleasedThisFrame)
 		{
-			if (curHook != null)
+			if (isAttach)
 			{
-				curHook.SetActive(false);
-				Destroy(curHook);
+				if (curHook != null)
+				{
+					curHook.SetActive(false);
+					Destroy(curHook);
+				}
+
+				isAttach = false;
+				isLineMax = false;
+				hasPlayedAttachSound = false;
+
+				Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
+				Vector2 slow = new Vector2(0.25f, 0.7f);
+				playerRb.linearVelocity *= slow;
 			}
 
-			// 슬로우모션
-			if (slowCoroutine != null)
-				StopCoroutine(slowCoroutine);
-
-			slowCoroutine = StartCoroutine(SlowRoutine());
-			Boost(accumulatedAngle / maxAngle);        // 0~1 만큼 부스트
-
-			isAttach = false;
-			isLineMax = false;
-			hasPlayedAttachSound = false;
 		}
 		// 요소를 잡고 있고, 마우스를 우클릭 했을 경우
 		else if (isGrab && Mouse.current.rightButton.wasPressedThisFrame)
@@ -293,63 +296,5 @@ public class TestGrapplingHook : MonoBehaviour
 			offset.x = playerSprite.flipX ? -Mathf.Abs(followOffset.x) : Mathf.Abs(followOffset.x); // followOffset을 기준으로 x를 왼쪽/오른쪽 방향 맞춤
 			hookingList[i].localPosition = offset; // 부모 transform 기준 localPosition
 		}
-	}
-
-	// 일시적 부스트 효과
-	public void Boost(float gaugePercent)
-	{
-		if (currentBoost != null)
-			StopCoroutine(currentBoost);
-
-		currentBoost = StartCoroutine(BoostRoutine(gaugePercent));
-	}
-
-	// 슬로우 효과 코루틴
-	private IEnumerator SlowRoutine()
-	{
-		sprite.color = Color.red;
-
-		if (colorAdjustments != null)
-			colorAdjustments.saturation.value = -50f;
-
-		Time.timeScale = slowFactor;
-		Time.fixedDeltaTime = 0.02f * Time.timeScale;
-		float elapsed = 0f;
-
-		while (elapsed < slowLength)
-		{
-			if (GameManager.Instance.playerController.isGrounded || isAttach) break;
-
-			elapsed += Time.unscaledDeltaTime;
-			yield return null;
-		}
-
-		Time.timeScale = 1f;
-		Time.fixedDeltaTime = 0.02f;
-		sprite.color = Color.white;
-
-		if (colorAdjustments != null)
-			colorAdjustments.saturation.value = 0f;
-	}
-
-	// 부스트 효과 코루틴
-	private IEnumerator BoostRoutine(float gaugePercent)
-	{
-		var stats = GameManager.Instance.playerStatsRuntime;
-		float originalSpeed = stats.speed;
-		float boostFactor = 1 + (boostMultiplier - 1) * gaugePercent;
-		stats.speed = originalSpeed * boostFactor;
-		float time = 0f;
-
-		while (time < boostDuration)
-		{
-			if (GameManager.Instance.playerController.hasCollided) break;
-
-			time += Time.deltaTime;
-			yield return null;
-		}
-
-		stats.speed = originalSpeed;
-		currentBoost = null;
 	}
 }
