@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 	[Header("걷기 사운드")]
 	public float walkSoundInterval = 0.7f;
 	private float walkSoundTimer = 0f;
-	public bool isWalking = false;
+	public bool isRunning = false;
 
 	[Header("슬로우 게이지 UI")]
 	public Slider slowGaugeSlider;
@@ -62,6 +62,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 	SpriteRenderer sprite;
 	PlayerInteraction interaction;  // 상호작용
 	Animator animator;              // 애니메이션
+	private bool isPlayedRunSound = false;	// 효과음 재생 여부
 
 	private Coroutine playerDieCoroutine;
 	private Coroutine damageCanvasCoroutine;
@@ -150,17 +151,24 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 	void HandleWalkSound()
 	{
-		if (!isWalking)
+		if (!isRunning)
 		{
 			walkSoundTimer = 0f; // 멈추면 타이머 리셋
+			GameManager.Instance.audioManager.StopSFX();    // 효과음 재생 중지
+			isPlayedRunSound = false;
 			return;
 		}
 
 		walkSoundTimer += Time.deltaTime;
 
 		if (walkSoundTimer >= walkSoundInterval)
-		{
-			GameManager.Instance.audioManager.PlayWalkSound(1f);
+		{	
+			// 효과음 재생
+			if(!isPlayedRunSound)
+			{
+				GameManager.Instance.audioManager.PlayRunSound(1f);
+				isPlayedRunSound = true;
+			}
 			walkSoundTimer = 0f;
 		}
 	}
@@ -248,19 +256,19 @@ public class PlayerController : MonoBehaviour, IDamageable
 
 				if (curTime >= maxTime)
 					SetPlayerState(playerState.Idle);
-				isWalking = false;
+				isRunning = false;
 			}
 			else
 			{
 				SetPlayerState(playerState.Run);
 				curTime = 0f;
-				isWalking = true;
+				isRunning = true;
 			}
 		}
 		else
 		{
 			SetPlayerState(playerState.Idle);
-			isWalking = false;
+			isRunning = false;
 		}
 	}
 

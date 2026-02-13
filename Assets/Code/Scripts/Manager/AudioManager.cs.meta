@@ -1,2 +1,25 @@
 fileFormatVersion: 2
 guid: 9b9b23da1c0a49d4ea04191f9de4c48d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - audioMixer: {fileID: 24100000, guid: fab71654d6c2f7f4bbcf9f45ab4f24e7, type: 2}
+  - bgmSource: {instanceID: 0}
+  - sfxSource: {instanceID: 0}
+  - playerDamaged: {fileID: 8300000, guid: 8a69d4d13b748c24487b2713d11d95a1, type: 3}
+  - playerJump: {fileID: 8300000, guid: 379a856fe2f574b43aed3f884818744f, type: 3}
+  - playerRun: {fileID: 8300000, guid: 67e4b97c1833ffa4ca26325922065900, type: 3}
+  - enemyAttack: {fileID: 8300000, guid: 2aa4e739239971349859b22ce2740c8d, type: 3}
+  - enemyShoot: {fileID: 8300000, guid: 65f3a4ec35166f841a429aabf0d9f30c, type: 3}
+  - objectExplosion: {fileID: 8300000, guid: 92ad0766e2cf37c45bc6a99841264120, type: 3}
+  - hookAttach: {fileID: 8300000, guid: 723251075cda21e4e82b4b82d0d25156, type: 3}
+  - hookDraft: {fileID: 8300000, guid: 0056bba062b850442a3ea463858dbeeb, type: 3}
+  - hookShoot: {fileID: 8300000, guid: 88699f601e27fe244b2c0b0b4240c5ac, type: 3}
+  - hookThrowEnemy: {fileID: 8300000, guid: 0e895b0fb5d70ff4f8217fab6aab3a57, type: 3}
+  - textTyping: {fileID: 8300000, guid: 4eaaca373f0ceec44970de3f11833ae0, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

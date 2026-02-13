@@ -13,7 +13,7 @@ public class AudioManager : MonoBehaviour
     [Header("Player SFX")]
     public AudioClip playerDamaged;
     public AudioClip playerJump;
-    public AudioClip playerWalk;
+    public AudioClip playerRun;
 
     [Header("Enemy SFX")]
     public AudioClip enemyAttack;
@@ -95,7 +95,7 @@ public class AudioManager : MonoBehaviour
     // 플레이어
     public void PlayDamagedSound(float volume = 1f) => PlaySFX(playerDamaged, volume);
     public void PlayJumpSound(float volume = 1f) => PlaySFX(playerJump, volume);
-    public void PlayWalkSound(float volume = 1f) => PlaySFX(playerWalk, volume);
+    public void PlayRunSound(float volume = 1f) => PlaySFX(playerRun, volume);
 
     // 적
     public void EnemyAttackSound(float volume = 1f) => PlaySFX(enemyAttack, volume);
